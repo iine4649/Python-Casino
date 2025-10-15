@@ -11,7 +11,7 @@ class User:
 
     def deposit(self, amount):
         if amount <= 0:
-            raise ValueError("Deposit must be a positive integer.")
+            raise ValueError("Deposit must be positive.")
         self.balance += amount
 
     def to_dict(self):
