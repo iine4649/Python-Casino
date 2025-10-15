@@ -1,8 +1,7 @@
 import json
 from pathlib import Path
-
-data_folder = Path("data")
-
+from user import User
+DATA_FILE = Path("data") / "userdata.json"
 def read_json(file_path):
     if not file_path.exists():
         return []

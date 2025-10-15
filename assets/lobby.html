@@ -4,28 +4,105 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Casino Lobby - Python Casino</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <style>
-:root{--bg:#0c0f14;--card:#151a22;--accent:#00d4ff;--accent-2:#8a2be2;--text:#e8eef6;--muted:#9aa7b2;}
-body{margin:0;background:radial-gradient(1000px 600px at 80% 90%, rgba(0,212,255,.2), transparent 60%),radial-gradient(1200px 800px at 20% 10%, rgba(138,43,226,.25), transparent 60%),var(--bg);font-family:system-ui,Segoe UI,Roboto,sans-serif;color:var(--text);}
-.navbar{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;background:rgba(255,255,255,.03);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08);}
-.logo{font-size:22px;font-weight:600;color:var(--accent);}
-.balance{font-size:16px;color:var(--muted);}
-.container{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;}
-h1{font-size:32px;margin-bottom:8px;}
-p{color:var(--muted);margin-bottom:30px;}
-.btn{padding:12px 24px;border:none;border-radius:10px;font-weight:600;color:#0a0f14;cursor:pointer;transition:transform .06s ease, box-shadow .2s ease;}
-.btn-primary{background:linear-gradient(135deg,var(--accent),#4de2ff);box-shadow:0 8px 20px rgba(0,212,255,.35);}
-.btn-secondary{background:linear-gradient(135deg,var(--accent-2),#b07cff);box-shadow:0 8px 20px rgba(138,43,226,.35);}
-.btn:hover{transform:translateY(-2px);}
-.actions{display:flex;gap:20px;justify-content:center;}
-.footer{margin-top:60px;color:var(--muted);font-size:13px;}
+:root {
+  --bg: #0c0f14;
+  --card: #151a22;
+  --accent: #00d4ff;
+  --accent-2: #8a2be2;
+  --text: #e8eef6;
+  --muted: #9aa7b2;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  background: radial-gradient(1200px 800px at 20% 10%, rgba(138,43,226,.25), transparent 60%), var(--bg);
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: rgba(255,255,255,.03);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.balance {
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+}
+
+h1 {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+p {
+  color: var(--muted);
+  margin-bottom: 30px;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #0a0f14;
+  cursor: pointer;
+  transition: transform .06s ease, box-shadow .2s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #4de2ff);
+  box-shadow: 0 8px 20px rgba(0,212,255,.35);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--accent-2), #b07cff);
+  box-shadow: 0 8px 20px rgba(138,43,226,.35);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.footer {
+  margin-top: 60px;
+  color: var(--muted);
+  font-size: 13px;
+}
 </style>
 </head>
 <body>
 <nav class="navbar">
-  <div class="logo">🎰 Python Casino</div>
-  <div class="balance">Welcome, {{ username }} | Balance: ${{ balance }}</div>
+  <div class="logo">Python Casino</div>
+  <div class="balance">Welcome, {{ username }} | Balance: ${{ "%.2f"|format(balance) }} | <a href="/logout" style="color: var(--accent); text-decoration: none;">Logout</a></div>
 </nav>
 
 <div class="container">
@@ -37,6 +114,6 @@ p{color:var(--muted);margin-bottom:30px;}
   </div>
 </div>
 
-<div class="footer">© 2025 Python Casino | Virtual funds only</div>
+
 </body>
 </html>

@@ -1,11 +1,30 @@
 import random 
 import time 
-user=[]
+
 bot=[]
 win=False
 dealerstays=False
 print("welcome to blackjack! You start with 2 cards, try to get as close to 21 as possible without going over.")
-for i in range(2):
+
+
+def get_user_deck() -> []:
+    user=[]
+    user.append(random.randint(1,13))
+    return user
+
+def get_bot_deck() -> []:
+    bot=[]
+    bot.append(random.randint(1,13))
+    return bot
+
+def get_user_total() -> int:
+    return sum(user)
+
+def get_bot_total() -> int:
+    return sum(bot)
+
+    
+for i in range(2):   
     user.append(random.randint(1,13))
     bot.append(random.randint(1,13))
     print("your cards:",user)

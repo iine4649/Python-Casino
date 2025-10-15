@@ -1,1 +1,26 @@
-[]
+{
+  "iine4649": {
+    "username": "iine4649",
+    "password": "$2b$12$heWe5aFR2vQ2huAOb0H4PeDeokdnZg/k5NA2YU2oodRmCleZVmwrm",
+    "balance": 600.0,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  },
+  "goodperson": {
+    "username": "goodperson",
+    "password": "$2b$12$/ThalzNJiyTtyPkxsUB2OOQ.IZ7hSojxILccGWevDBqvhOC9r.gvq",
+    "balance": 500,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  },
+  "betamale": {
+    "username": "betamale",
+    "password": "$2b$12$zJXgor8yursXAljOz1T4oeDUqCE3Jfzuaq8kt2G3y6/uirLukTpiu",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  }
+}

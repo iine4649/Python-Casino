@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_wtf import CSRFProtect
 from flask_bcrypt import Bcrypt
 from flask_talisman import Talisman
 import json
 import os
 from pathlib import Path
+from user import User
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_FILE = BASE_DIR / "data" / "userdata.json"
@@ -15,14 +16,24 @@ app = Flask(__name__, template_folder=str(ASSETS_DIR), static_folder=str(ASSETS_
 # Security baseline
 app.config.update(
     SECRET_KEY=os.environ.get("SECRET_KEY", "change-this-in-prod"),
-    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_SECURE=False,  # Set to False for development (HTTP)
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
     WTF_CSRF_ENABLED=True,
 )
 
 # HTTPS-related headers & policies (dev: will not actually provide TLS, use reverse-proxy in prod)
-Talisman(app, force_https=False, strict_transport_security=True)
+# Allow inline styles and scripts for development
+Talisman(app, 
+         force_https=False, 
+         strict_transport_security=True,
+         content_security_policy={
+             'default-src': "'self'",
+             'style-src': ["'self'", "'unsafe-inline'"],
+             'script-src': ["'self'", "'unsafe-inline'"],
+             'img-src': ["'self'", "data:", "https:"],
+             'font-src': ["'self'", "https:", "data:"]
+         })
 
 # CSRF and bcrypt
 csrf = CSRFProtect(app)
@@ -34,18 +45,48 @@ def load_users():
         DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
         DATA_FILE.write_text("{}", encoding="utf-8")
     try:
-        return json.loads(DATA_FILE.read_text(encoding="utf-8") or "{}")
+        data = json.loads(DATA_FILE.read_text(encoding="utf-8") or "{}")
+        # Ensure we always return a dict, not a list
+        if isinstance(data, list):
+            return {}
+        
+        # Convert dict data to User objects
+        users = {}
+        for username, user_data in data.items():
+            if isinstance(user_data, dict) and 'username' in user_data:
+                users[username] = User.from_dict(user_data)
+            else:
+                # Handle old format (just password_hash)
+                users[username] = User(
+                    username=username,
+                    password=user_data.get('password_hash', ''),
+                    balance=user_data.get('balance', 500),
+                    money_won=user_data.get('money_won', 0),
+                    money_lost=user_data.get('money_lost', 0),
+                    games_played=user_data.get('games_played', 0)
+                )
+        return users
     except json.JSONDecodeError:
         return {}
 
 
 def save_users(users: dict) -> None:
     DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-    DATA_FILE.write_text(json.dumps(users, ensure_ascii=False, indent=2), encoding="utf-8")
+    # Convert User objects to dict format
+    user_dicts = {}
+    for username, user in users.items():
+        if isinstance(user, User):
+            user_dicts[username] = user.to_dict()
+        else:
+            user_dicts[username] = user
+    DATA_FILE.write_text(json.dumps(user_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 @app.route("/")
 def login():
+    # If user is already logged in, redirect to lobby
+    if session.get('user_id'):
+        return redirect(url_for('lobby'))
     return render_template("secure_login.html")
 
 
@@ -55,12 +96,85 @@ def sign_up():
 
 @app.route("/lobby")
 def lobby():
-    return render_template("lobby.html")
+    user_id = session.get('user_id', 'Guest')
+    users = load_users()
+    user = users.get(user_id)
+    
+    if user and isinstance(user, User):
+        balance = user.balance
+    else:
+        balance = 1000  # Default for guest or old format
+    
+    return render_template("lobby.html", username=user_id, balance=balance)
     
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html")
+    user_id = session.get('user_id', 'Guest')
+    users = load_users()
+    user = users.get(user_id)
+    
+    if user and isinstance(user, User):
+        balance = user.balance
+        money_won = user.money_won
+        money_lost = user.money_lost
+    else:
+        balance = 1000  # Default for guest or old format
+        money_won = 0
+        money_lost = 0
+    
+    return render_template("dashboard.html", username=user_id, balance=balance, money_won=money_won, money_lost=money_lost)
 
+@app.route("/blackjack")
+def blackjack():
+    user_id = session.get('user_id', 'Guest')
+    users = load_users()
+    user = users.get(user_id)
+    
+    if user and isinstance(user, User):
+        balance = user.balance
+    else:
+        balance = 1000  # Default for guest or old format
+    
+    return render_template("blackjack.html", username=user_id, balance=balance)
+
+@app.route("/deposit")
+def deposit():
+    user_id = session.get('user_id', 'Guest')
+    return render_template("deposit.html", username=user_id)
+
+
+@app.post("/api/deposit")
+@csrf.exempt
+def api_deposit():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"ok": False, "error": "Not logged in"}), 401
+    
+    data = request.get_json(silent=True) or request.form.to_dict()
+    amount = data.get("amount")
+    
+    try:
+        amount = float(amount)
+        if amount <= 0:
+            return jsonify({"ok": False, "error": "Amount must be positive"}), 400
+    except (ValueError, TypeError):
+        return jsonify({"ok": False, "error": "Invalid amount"}), 400
+    
+    users = load_users()
+    user = users.get(user_id)
+    
+    if not user or not isinstance(user, User):
+        return jsonify({"ok": False, "error": "User not found"}), 404
+    
+    # Add deposit amount to balance
+    user.deposit(amount)
+    save_users(users)
+    
+    return jsonify({
+        "ok": True,
+        "new_balance": user.balance,
+        "deposited": amount
+    })
 
 
 
@@ -89,7 +203,16 @@ def api_sign_up():
         return jsonify({"ok": False, "error": "User already exists"}), 409
 
     hashed = bcrypt.generate_password_hash(password).decode("utf-8")
-    users[user_id] = {"password_hash": hashed}
+    # Create new User object with default values
+    new_user = User(
+        username=user_id,
+        password=hashed,
+        balance=10000,  # Default starting balance
+        money_won=0,
+        money_lost=0,
+        games_played=0
+    )
+    users[user_id] = new_user
     save_users(users)
     return jsonify({"ok": True}), 201
 
@@ -106,10 +229,32 @@ def api_sign_in():
     if not user:
         return jsonify({"ok": False, "error": "Invalid credentials"}), 401
 
-    if not bcrypt.check_password_hash(user.get("password_hash", ""), password):
+    # Handle both User objects and old dict format
+    if isinstance(user, User):
+        password_hash = user.password
+    else:
+        password_hash = user.get("password_hash", "")
+    
+    if not bcrypt.check_password_hash(password_hash, password):
         return jsonify({"ok": False, "error": "Invalid credentials"}), 401
 
+    # Store user in session
+    session['user_id'] = user_id
     return jsonify({"ok": True})
+
+
+@app.route("/logout")
+def logout():
+    session.pop('user_id', None)
+    return redirect(url_for('login'))
+
+
+@app.route("/debug-session")
+def debug_session():
+    return jsonify({
+        "session": dict(session),
+        "user_id": session.get('user_id', 'Not found')
+    })
 
 
 if __name__ == "__main__":
