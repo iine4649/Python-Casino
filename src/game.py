@@ -1,6 +1,7 @@
-import random 
-import time 
+import random
 
+
+'''
 bot=[]
 win=False
 dealerstays=False
@@ -75,4 +76,40 @@ while sum(user)<21 and win==False:
     elif sum(bot)==21:
         print("you lose!")
         break
+'''
+class BlackjackGame:
+    def __init__(self):
+        self.player_cards = []
+        self.dealer_cards = []
+        self.game_over = False
+        self.player_stayed = False
+        
+    def deal_initial_cards(self):
+    #TODO: deal 2 cards to player and dealer
+        
+    def draw_card(self):
+    #TODO: draw a card from the deck
+        
+    def hit_player(self):
+    #TODO: hit the player
+        
+    def player_stay(self):
+    #TODO: player stays
+            
+    def play_dealer(self):
+    #TODO: play the dealer
+        
+    def get_player_total(self):
+    #TODO: get the player's total
+
+        
+    def get_dealer_total(self):
+    #TODO: get the dealer's total
+
+        
+    def get_game_result(self):
+    #TODO: get the game result
+            
+    def card_to_string(self, card):
+    #TODO: convert a card to a string
 

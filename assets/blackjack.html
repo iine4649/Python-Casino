@@ -266,6 +266,8 @@ let currentBet = 100;
 let gameStarted = false;
 let playerCards = [];
 let dealerCards = [];
+let playerTotal = 0;
+let dealerTotal = 0;
 
 // Minimum bet is 100
 const MIN_BET = 100;
@@ -282,63 +284,131 @@ function changeBet(amount) {
   }
 }
 
-function dealCards() {
+async function dealCards() {
   if (gameStarted) return;
   
-  gameStarted = true;
-  playerCards = [];
-  dealerCards = [];
-  
-  // Simulate dealing cards
-  playerCards = ['A♠', '7♣'];
-  dealerCards = ['K♦', '?'];
-  
-  updateCardsDisplay();
-  updateButtons();
-  updateGameStatus('Game in progress! Hit or Stand?');
-}
-
-function hit() {
-  if (!gameStarted) return;
-  
-  playerCards.push('3♥'); // Simulate new card
-  updateCardsDisplay();
-  
-  if (getPlayerTotal() > 21) {
-    updateGameStatus('Bust! You lose $' + currentBet);
-    endGame();
+  try {
+    const response = await fetch('/api/blackjack/deal', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bet_amount: currentBet })
+    });
+    
+    const result = await response.json();
+    
+    if (result.ok) {
+      gameStarted = true;
+      playerCards = result.player_cards;
+      dealerCards = result.dealer_cards;
+      playerTotal = result.player_total;
+      dealerTotal = result.dealer_total;
+      
+      updateCardsDisplay();
+      updateButtons();
+      updateGameStatus('Game in progress! Hit or Stand?');
+      updateBalance(result.new_balance);
+    } else {
+      alert('Error: ' + result.error);
+    }
+  } catch (error) {
+    alert('Error: ' + error.message);
   }
 }
 
-function stand() {
+async function hit() {
   if (!gameStarted) return;
   
-  // Reveal dealer's hidden card and play dealer's hand
-  dealerCards[1] = '5♠'; // Reveal hidden card
-  dealerCards.push('J♣'); // Dealer hits
-  
-  updateCardsDisplay();
-  
-  const playerTotal = getPlayerTotal();
-  const dealerTotal = getDealerTotal();
-  
-  if (dealerTotal > 21) {
-    updateGameStatus('Dealer busts! You win $' + currentBet);
-  } else if (playerTotal > dealerTotal) {
-    updateGameStatus('You win $' + currentBet);
-  } else if (playerTotal < dealerTotal) {
-    updateGameStatus('You lose $' + currentBet);
-  } else {
-    updateGameStatus('Push! Your bet is returned.');
+  try {
+    const response = await fetch('/api/blackjack/hit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    const result = await response.json();
+    
+    if (result.ok) {
+      playerCards = result.player_cards;
+      dealerCards = result.dealer_cards;
+      playerTotal = result.player_total;
+      dealerTotal = result.dealer_total;
+      
+      updateCardsDisplay();
+      
+      if (result.game_over) {
+        if (result.result === 'bust') {
+          updateGameStatus('Bust! You lose $' + currentBet);
+        }
+        endGame();
+      }
+    } else {
+      alert('Error: ' + result.error);
+    }
+  } catch (error) {
+    alert('Error: ' + error.message);
   }
+}
+
+async function stand() {
+  if (!gameStarted) return;
   
-  endGame();
+  try {
+    const response = await fetch('/api/blackjack/stand', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    const result = await response.json();
+    
+    if (result.ok) {
+      playerCards = result.player_cards;
+      dealerCards = result.dealer_cards;
+      playerTotal = result.player_total;
+      dealerTotal = result.dealer_total;
+      
+      updateCardsDisplay();
+      updateBalance(result.new_balance);
+      
+      // Show result
+      let message = '';
+      switch(result.game_result) {
+        case 'player_wins':
+          message = 'You win $' + result.bet + '!';
+          break;
+        case 'dealer_wins':
+          message = 'You lose $' + result.bet;
+          break;
+        case 'dealer_bust':
+          message = 'Dealer busts! You win $' + result.bet + '!';
+          break;
+        case 'tie':
+          message = 'Push! Your bet is returned.';
+          break;
+        default:
+          message = 'Game ended.';
+      }
+      
+      updateGameStatus(message);
+      endGame();
+    } else {
+      alert('Error: ' + result.error);
+    }
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
 }
 
 function newGame() {
   gameStarted = false;
   playerCards = [];
   dealerCards = [];
+  playerTotal = 0;
+  dealerTotal = 0;
   updateCardsDisplay();
   updateButtons();
   updateGameStatus('Place your bet and click "Deal Cards" to start!');
@@ -353,8 +423,8 @@ function updateCardsDisplay() {
     `<div class="card">${card}</div>`
   ).join('');
   
-  document.getElementById('playerTotal').textContent = getPlayerTotal();
-  document.getElementById('dealerTotal').textContent = gameStarted ? getDealerTotal() : '?';
+  document.getElementById('playerTotal').textContent = playerTotal;
+  document.getElementById('dealerTotal').textContent = dealerTotal;
 }
 
 function updateButtons() {
@@ -380,20 +450,17 @@ function updateGameStatus(message) {
   document.getElementById('gameStatus').textContent = message;
 }
 
+function updateBalance(newBalance) {
+  // Update the balance in the navbar
+  const balanceElement = document.querySelector('.balance');
+  const username = balanceElement.textContent.split('|')[0].trim();
+  balanceElement.innerHTML = `${username} | Balance: $${newBalance.toFixed(2)} | <a href="/logout" style="color: var(--accent); text-decoration: none;">Logout</a>`;
+}
+
 function endGame() {
   document.getElementById('hitBtn').style.display = 'none';
   document.getElementById('standBtn').style.display = 'none';
   document.getElementById('newGameBtn').style.display = 'inline-block';
-}
-
-function getPlayerTotal() {
-  // Simplified calculation - in real game would handle Aces properly
-  return playerCards.length * 10; // Placeholder
-}
-
-function getDealerTotal() {
-  // Simplified calculation - in real game would handle Aces properly
-  return dealerCards.length * 10; // Placeholder
 }
 
 // Initialize
