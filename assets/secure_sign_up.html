@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up - Python Casino</title>
+<style>
+:root{--bg:#0c0f14;--card:#151a22;--accent:#00d4ff;--accent-2:#8a2be2;--text:#e8eef6;--muted:#9aa7b2;--danger:#ff3b3b}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;background:radial-gradient(1200px 800px at 20% 10%, rgba(138,43,226,.25), transparent 60%),radial-gradient(1000px 700px at 80% 90%, rgba(0,212,255,.2), transparent 60%),var(--bg);color:var(--text);}
+.container{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{width:100%;max-width:420px;background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:16px;backdrop-filter:blur(6px);box-shadow:0 10px 30px rgba(0,0,0,.35);padding:24px}
+.title{margin:0 0 6px 0;font-size:26px;letter-spacing:.3px}
+.subtitle{margin:0 0 20px 0;color:var(--muted);font-size:14px}
+.form{display:flex;flex-direction:column;gap:14px}
+.label{font-size:13px;color:var(--muted)}
+.input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:var(--text);outline:none;transition:border-color .2s, box-shadow .2s}
+.input::placeholder{color:#7d8b97}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(0,212,255,.12)}
+.actions{display:flex;gap:12px;margin-top:4px}
+.btn{flex:1;padding:12px 14px;border:none;border-radius:10px;color:#0a0f14;font-weight:600;cursor:pointer;transition:transform .06s ease, box-shadow .2s ease, opacity .2s}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#4de2ff);box-shadow:0 8px 20px rgba(0,212,255,.35)}
+.btn-primary:hover{box-shadow:0 10px 24px rgba(0,212,255,.45)}
+.btn-secondary{background:linear-gradient(135deg,var(--accent-2),#b07cff);box-shadow:0 8px 20px rgba(138,43,226,.35)}
+.btn-secondary:hover{box-shadow:0 10px 24px rgba(138,43,226,.45)}
+.footer{margin-top:14px;font-size:12px;color:var(--muted);text-align:center}
+.link{color:var(--accent);text-decoration:none}
+.link:hover{text-decoration:underline}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:12px;color:var(--muted)}
+.badge-dot{width:8px;height:8px;border-radius:50%;background:conic-gradient(var(--accent),var(--accent-2))}
+.lang-row{display:flex;justify-content:flex-end;margin-bottom:10px}
+.lang-select{appearance:none;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:var(--text);font-size:12px}
+.hint{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<div class="logo">
+<span class="badge"><span class="badge-dot"></span> Python Casino</span>
+</div>
+<div class="lang-row">
+<select id="lang-select" class="lang-select" aria-label="Language">
+<option value="en">English</option>
+<option value="ja">Japanese</option>
+<option value="zh">Chinese</option>
+<option value="ko">Korean</option>
+<option value="ru">Russian</option>
+<option value="de">German</option>
+<option value="es">Spanish</option>
+<option value="la">Latin</option>
+</select>
+</div>
+<h1 class="title" id="title-text">Sign up</h1>
+<p class="subtitle" id="subtitle-text">Create your account to start playing.</p>
+<form id="signup-form" class="form" action="#" method="post">
+<label for="user-id" class="label" id="label-id">ID</label>
+<input type="text" id="user-id" class="input" name="user_id" placeholder="Choose your ID" required>
+<label for="password" class="label" id="label-password">Password</label>
+<input type="password" id="password" class="input" name="password" placeholder="Create a strong password" required>
+<label for="password2" class="label" id="label-password2">Confirm Password</label>
+<input type="password" id="password2" class="input" name="password_confirm" placeholder="Re-enter your password" required>
+<span class="hint" id="hint-text">Use 8+ characters with letters and numbers.</span>
+<div class="actions">
+<button type="submit" class="btn btn-primary" id="btn-signup">Sign Up</button>
+<button type="button" class="btn btn-secondary" id="btn-back" onclick="window.location.href='secure_login.html'">Back to Sign In</button>
+</div>
+</form>
+<div class="footer"><span id="footer-prefix">Already have an account?</span> <a class="link" id="footer-link" href="secure_login.html">Sign In</a></div>
+</div>
+</div>
+<script>
+(function(){
+var select=document.getElementById('lang-select');
+var html=document.documentElement;
+var titleText=document.getElementById('title-text');
+var subtitleText=document.getElementById('subtitle-text');
+var labelId=document.getElementById('label-id');
+var labelPassword=document.getElementById('label-password');
+var labelPassword2=document.getElementById('label-password2');
+var inputId=document.getElementById('user-id');
+var inputPw=document.getElementById('password');
+var inputPw2=document.getElementById('password2');
+var btnSignup=document.getElementById('btn-signup');
+var btnBack=document.getElementById('btn-back');
+var footerPrefix=document.getElementById('footer-prefix');
+var footerLink=document.getElementById('footer-link');
+var hint=document.getElementById('hint-text');
+var t={
+  en:{html:'en',title:'Sign up',sub:'Create your account to start playing.',id:'ID',idPh:'Choose your ID',pw:'Password',pwPh:'Create a strong password',pw2:'Confirm Password',pw2Ph:'Re-enter your password',hint:'Use 8+ characters with letters and numbers.',up:'Sign Up',back:'Back to Sign In',foot:'Already have an account?','footLink':'Sign In'},
+  ja:{html:'ja',title:'新規登録',sub:'アカウントを作成してゲームを始めましょう。',id:'ID',idPh:'ID を入力',pw:'パスワード',pwPh:'強力なパスワードを作成',pw2:'パスワード（確認）',pw2Ph:'パスワードを再入力',hint:'英数字を含む8文字以上を推奨。',up:'新規登録',back:'サインインへ戻る',foot:'すでにアカウントをお持ちですか？','footLink':'サインイン'},
+  zh:{html:'zh',title:'注册',sub:'创建账号开始游戏。',id:'账号',idPh:'设置账号',pw:'密码',pwPh:'创建强密码',pw2:'确认密码',pw2Ph:'再次输入密码',hint:'建议使用8位以上且包含字母与数字。',up:'注册',back:'返回登录',foot:'已经有账号？','footLink':'登录'},
+  ko:{html:'ko',title:'회원가입',sub:'계정을 만들어 게임을 시작하세요.',id:'아이디',idPh:'아이디 설정',pw:'비밀번호',pwPh:'강력한 비밀번호 생성',pw2:'비밀번호 확인',pw2Ph:'비밀번호 재입력',hint:'문자와 숫자를 포함해 8자 이상 권장.',up:'회원가입',back:'로그인으로 돌아가기',foot:'이미 계정이 있으신가요?','footLink':'로그인'},
+  ru:{html:'ru',title:'Регистрация',sub:'Создайте аккаунт, чтобы начать играть.',id:'ID',idPh:'Выберите ID',pw:'Пароль',pwPh:'Создайте надежный пароль',pw2:'Подтвердите пароль',pw2Ph:'Повторите пароль',hint:'Рекомендуется 8+ символов с буквами и цифрами.',up:'Регистрация',back:'Вернуться ко входу',foot:'Уже есть аккаунт?','footLink':'Войти'},
+  de:{html:'de',title:'Registrieren',sub:'Erstelle dein Konto, um zu spielen.',id:'ID',idPh:'ID wählen',pw:'Passwort',pwPh:'Sicheres Passwort erstellen',pw2:'Passwort bestätigen',pw2Ph:'Passwort erneut eingeben',hint:'Mind. 8 Zeichen mit Buchstaben und Zahlen.',up:'Registrieren',back:'Zur Anmeldung zurück',foot:'Du hast bereits ein Konto?','footLink':'Anmelden'},
+  es:{html:'es',title:'Registrarse',sub:'Crea tu cuenta para comenzar a jugar.',id:'ID',idPh:'Elige tu ID',pw:'Contraseña',pwPh:'Crea una contraseña segura',pw2:'Confirmar contraseña',pw2Ph:'Vuelve a escribir la contraseña',hint:'Usa 8+ caracteres con letras y números.',up:'Registrarse',back:'Volver a iniciar sesión',foot:'¿Ya tienes una cuenta?','footLink':'Iniciar sesión'},
+  la:{html:'la',title:'Adscriptio',sub:'Rationem crea ut ludere incipias.',id:'ID',idPh:'ID elige',pw:'Tessera',pwPh:'Tesseram validam crea',pw2:'Tessera confirmanda',pw2Ph:'Tesseram iterum insere',hint:'Utere 8+ notis cum litteris et numeris.',up:'Adscribe',back:'Revertere ad Ingrediendum',foot:'Iam rationem habes?','footLink':'Ingredere'}
+};
+function apply(lang){
+  var d=t[lang]||t.en;
+  html.lang=d.html;
+  titleText.textContent=d.title;
+  subtitleText.textContent=d.sub;
+  labelId.textContent=d.id;
+  inputId.placeholder=d.idPh;
+  labelPassword.textContent=d.pw;
+  inputPw.placeholder=d.pwPh;
+  labelPassword2.textContent=d.pw2;
+  inputPw2.placeholder=d.pw2Ph;
+  hint.textContent=d.hint;
+  btnSignup.textContent=d.up;
+  btnBack.textContent=d.back;
+  footerPrefix.textContent=d.foot;
+  footerLink.textContent=d.footLink;
+}
+select.addEventListener('change',function(){apply(this.value);});
+apply(select.value||'en');
+})();
+</script>
+</body>
+</html>
