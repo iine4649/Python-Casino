@@ -53,6 +53,18 @@ def login():
 def sign_up():
     return render_template("secure_sign_up.html")
 
+@app.route("/lobby")
+def lobby():
+    return render_template("lobby.html")
+    
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+
+
+
+
 
 @app.route("/health")
 def health():
