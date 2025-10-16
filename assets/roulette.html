@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roulette - Python Casino</title>
+<style>
+:root {
+  --bg: #0c0f14;
+  --accent: #00d4ff;
+  --accent-2: #8a2be2;
+  --text: #e8eef6;
+  --muted: #9aa7b2;
+}
+body {
+  margin: 0;
+  background: radial-gradient(1200px 800px at 20% 10%, rgba(138,43,226,.25), transparent 60%), var(--bg);
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  text-align: center;
+}
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: rgba(255,255,255,.03);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.logo { font-size: 22px; color: var(--accent); font-weight: 600; }
+.balance { color: var(--muted); }
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #0a0f14;
+  cursor: pointer;
+  margin: 10px;
+  transition: transform .06s ease, box-shadow .2s ease;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #4de2ff);
+}
+.btn-secondary {
+  background: linear-gradient(135deg, var(--accent-2), #b07cff);
+}
+.result-box {
+  margin-top: 30px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px;
+  padding: 20px;
+  display: inline-block;
+  min-width: 300px;
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">Roulette</div>
+  <div class="balance">Welcome, {{ username }} | Balance: ${{ "%.2f"|format(balance) }} | 
+    <a href="/logout" style="color: var(--accent); text-decoration: none;">Logout</a>
+  </div>
+</nav>
+
+<h1>🎡 Roulette</h1>
+<p>Bet on odd, even, red, or black — then spin the wheel!</p>
+
+<div>
+  <button class="btn btn-primary" onclick="placeBet('odd')">Bet on Odd</button>
+  <button class="btn btn-primary" onclick="placeBet('even')">Bet on Even</button>
+  <button class="btn btn-secondary" onclick="placeBet('color_red')">Bet on Red</button>
+  <button class="btn btn-secondary" onclick="placeBet('color_black')">Bet on Black</button>
+</div>
+
+<div class="result-box" id="resultBox">
+  Click a bet to play!
+</div>
+
+<script>
+async function placeBet(type) {
+  const response = await fetch('/api/roulette/spin', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ bet_type: type })
+  });
+  const result = await response.json();
+  if (result.ok) {
+    const data = result.data;
+    const msg = `
+      <h3>Result: ${data.number} (${data.color})</h3>
+      <p>${data.result === 'win' ? '✅ You Win!' : '❌ You Lose!'}</p>
+      <p>New Balance: $${data.new_balance}</p>
+    `;
+    document.getElementById('resultBox').innerHTML = msg;
+  } else {
+    alert(result.error);
+  }
+}
+</script>
+
+</body>
+</html>
