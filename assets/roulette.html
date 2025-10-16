@@ -7,100 +7,167 @@
 <style>
 :root {
   --bg: #0c0f14;
+  --card: #151a22;
   --accent: #00d4ff;
   --accent-2: #8a2be2;
   --text: #e8eef6;
   --muted: #9aa7b2;
+  --roulette-green: #00cc66;
+  --roulette-red: #ff4d4d;
+  --roulette-black: #111;
 }
 body {
   margin: 0;
-  background: radial-gradient(1200px 800px at 20% 10%, rgba(138,43,226,.25), transparent 60%), var(--bg);
   font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  background: radial-gradient(1000px 700px at 80% 90%, rgba(0,212,255,.2), transparent 60%), var(--bg);
   color: var(--text);
-  text-align: center;
 }
 .navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: flex; justify-content: space-between; align-items: center;
   padding: 20px 40px;
   background: rgba(255,255,255,.03);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255,255,255,.08);
 }
-.logo { font-size: 22px; color: var(--accent); font-weight: 600; }
-.balance { color: var(--muted); }
+.logo { font-size: 22px; font-weight: 600; color: var(--accent); }
+.balance { font-size: 16px; color: var(--muted); }
+.container {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 80vh; text-align: center;
+}
 .btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  color: #0a0f14;
-  cursor: pointer;
-  margin: 10px;
+  padding: 12px 24px; border: none; border-radius: 10px;
+  font-weight: 600; cursor: pointer;
   transition: transform .06s ease, box-shadow .2s ease;
 }
 .btn:hover { transform: translateY(-2px); }
-.btn-primary {
-  background: linear-gradient(135deg, var(--accent), #4de2ff);
+.btn-green {
+  background: linear-gradient(135deg, var(--roulette-green), #00ff88);
+  box-shadow: 0 8px 20px rgba(0,255,136,.35);
+}
+.btn-red {
+  background: linear-gradient(135deg, var(--roulette-red), #ff7b00);
+  box-shadow: 0 8px 20px rgba(255,77,77,.35);
+}
+.btn-black {
+  background: linear-gradient(135deg, #222, #555);
+  box-shadow: 0 8px 20px rgba(255,255,255,.15);
+  color: #fff;
 }
 .btn-secondary {
   background: linear-gradient(135deg, var(--accent-2), #b07cff);
+  box-shadow: 0 8px 20px rgba(138,43,226,.35);
+  color: #fff;
 }
-.result-box {
-  margin-top: 30px;
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 12px;
-  padding: 20px;
-  display: inline-block;
-  min-width: 300px;
+.bet-controls {
+  margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;
 }
+.bet-display {
+  font-size: 20px; color: var(--accent); font-weight: 600;
+  background: rgba(255,255,255,.06); padding: 10px 20px; border-radius: 10px;
+}
+.bet-buttons { display: flex; gap: 10px; }
+.back-button { position: absolute; top: 20px; left: 20px; }
+.result { font-size: 20px; font-weight: 600; margin-top: 30px; }
 </style>
 </head>
 <body>
-
 <nav class="navbar">
   <div class="logo">Roulette</div>
-  <div class="balance">Welcome, {{ username }} | Balance: ${{ "%.2f"|format(balance) }} | 
-    <a href="/logout" style="color: var(--accent); text-decoration: none;">Logout</a>
-  </div>
+  <div class="balance">Welcome, {{ username }} | Balance: ${{ "%.2f"|format(balance) }} |
+    <a href="/logout" style="color: var(--accent); text-decoration: none;">Logout</a></div>
 </nav>
 
-<h1>🎡 Roulette</h1>
-<p>Bet on odd, even, red, or black — then spin the wheel!</p>
-
-<div>
-  <button class="btn btn-primary" onclick="placeBet('odd')">Bet on Odd</button>
-  <button class="btn btn-primary" onclick="placeBet('even')">Bet on Even</button>
-  <button class="btn btn-secondary" onclick="placeBet('color_red')">Bet on Red</button>
-  <button class="btn btn-secondary" onclick="placeBet('color_black')">Bet on Black</button>
+<div class="back-button">
+  <button class="btn btn-secondary" onclick="window.location.href='/lobby'">← Back to Lobby</button>
 </div>
 
-<div class="result-box" id="resultBox">
-  Click a bet to play!
+<div class="container">
+  <h1>Place Your Bet</h1>
+  <p>Pick a color or a number (0–36). Spin takes 2 seconds!</p>
+
+  <div class="bet-controls">
+    <div>Bet Amount</div>
+    <div class="bet-display" id="betAmount">$100</div>
+    <div class="bet-buttons">
+      <button class="btn btn-secondary" onclick="changeBet(-100)">-100</button>
+      <button class="btn btn-secondary" onclick="changeBet(100)">+100</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:20px;margin-top:20px;">
+    <button class="btn btn-red" onclick="spin('red')">Bet on Red</button>
+    <button class="btn btn-black" onclick="spin('black')">Bet on Black</button>
+    <button class="btn btn-green" onclick="spin('green')">Bet on Green (0)</button>
+  </div>
+
+  <div style="margin-top:30px;">
+    <input id="numberBet" type="number" min="0" max="36" placeholder="Number (0–36)" 
+           style="padding:10px;border-radius:8px;text-align:center;width:160px;">
+    <button class="btn btn-secondary" onclick="betOnNumber()">Bet on Number</button>
+  </div>
+
+  <div class="result" id="resultDisplay"></div>
 </div>
 
 <script>
-async function placeBet(type) {
-  const response = await fetch('/api/roulette/spin', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ bet_type: type })
-  });
-  const result = await response.json();
-  if (result.ok) {
-    const data = result.data;
-    const msg = `
-      <h3>Result: ${data.number} (${data.color})</h3>
-      <p>${data.result === 'win' ? '✅ You Win!' : '❌ You Lose!'}</p>
-      <p>New Balance: $${data.new_balance}</p>
-    `;
-    document.getElementById('resultBox').innerHTML = msg;
-  } else {
-    alert(result.error);
+let currentBet = 100;
+
+function changeBet(amount) {
+  currentBet = Math.max(100, currentBet + amount);
+  document.getElementById("betAmount").textContent = `$${currentBet}`;
+}
+
+async function spin(color) {
+  const resultDisplay = document.getElementById("resultDisplay");
+  resultDisplay.textContent = "Spinning the wheel";
+  setTimeout(async () => {
+    try {
+      const response = await fetch("/api/roulette/spin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bet_color: color, bet_amount: currentBet })
+      });
+      const result = await response.json();
+      if (!result.ok) throw new Error(result.error);
+      resultDisplay.textContent = `Landed on ${result.number} (${result.color}) — ${result.message}`;
+      updateBalance(result.new_balance);
+    } catch (err) {
+      resultDisplay.textContent = "Error: " + err.message;
+    }
+  }, 2000);
+}
+
+async function betOnNumber() {
+  const betNumber = document.getElementById("numberBet").value;
+  if (betNumber === "" || betNumber < 0 || betNumber > 36) {
+    alert("Please enter a valid number between 0 and 36.");
+    return;
   }
+  const resultDisplay = document.getElementById("resultDisplay");
+  resultDisplay.textContent = "Spinning the wheel...";
+  setTimeout(async () => {
+    try {
+      const response = await fetch("/api/roulette/spin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bet_number: betNumber, bet_amount: currentBet })
+      });
+      const result = await response.json();
+      if (!result.ok) throw new Error(result.error);
+      resultDisplay.textContent = `Landed on ${result.number} (${result.color}) — ${result.message}`;
+      updateBalance(result.new_balance);
+    } catch (err) {
+      resultDisplay.textContent = "Error: " + err.message;
+    }
+  }, 2000);
+}
+
+function updateBalance(newBalance) {
+  const balanceEl = document.querySelector(".balance");
+  const username = balanceEl.textContent.split("|")[0].trim();
+  balanceEl.innerHTML = `${username} | Balance: $${newBalance.toFixed(2)} | <a href="/logout" style="color:var(--accent);text-decoration:none;">Logout</a>`;
 }
 </script>
-
 </body>
 </html>
