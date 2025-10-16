@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from flask_wtf import CSRFProtect
 from flask_bcrypt import Bcrypt
 from flask_talisman import Talisman
+from roulette import RouletteGame
 import json
 import os
 from pathlib import Path
@@ -363,6 +364,54 @@ def debug_session():
         "user_id": session.get('user_id', 'Not found')
     })
 
+@app.route("/roulette")
+def roulette():
+    user_id = session.get('user_id', 'Guest')
+    users = load_users()
+    user = users.get(user_id)
+    balance = user.balance if user else 1000
+    return render_template("roulette.html", username=user_id, balance=balance)
+
+@app.post("/api/roulette/spin")
+@csrf.exempt
+def api_roulette_spin():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"ok": False, "error": "Not logged in"}), 401
+    
+    data = request.get_json(silent=True) or {}
+    bet_type = data.get("bet_type")
+    bet_amount = 100  # fixed for now
+
+    users = load_users()
+    user = users.get(user_id)
+    if not user:
+        return jsonify({"ok": False, "error": "User not found"}), 404
+    if user.balance < bet_amount:
+        return jsonify({"ok": False, "error": "Insufficient balance"}), 400
+
+    game = RouletteGame()
+    outcome = game.check_result(bet_type)
+
+    if outcome["result"] == "win":
+        user.balance += bet_amount
+        user.money_won += bet_amount
+    else:
+        user.balance -= bet_amount
+        user.money_lost += bet_amount
+
+    user.games_played += 1
+    save_users(users)
+
+    return jsonify({
+        "ok": True,
+        "data": {
+            "number": outcome["number"],
+            "color": outcome["color"],
+            "result": outcome["result"],
+            "new_balance": user.balance
+        }
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
