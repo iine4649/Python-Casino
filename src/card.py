@@ -19,7 +19,7 @@ width = 300
 height = 450
 
 class Card:
-    def __init__(self):(self, cards, card_types, card_color):
+    def __init__(self, cards, card_types, card_color):
         self.cards = cards
         self.card_types = card_type
         self.card_color = card_color
