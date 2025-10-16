@@ -14,9 +14,6 @@ suit_colors = {
     "Spades": "Black"
 }
 
-# card dimensions *make sure that it is in sync with UI*
-width = 300
-height = 450
 
 class Card:
     def __init__(self, cards, card_types, card_color):
@@ -33,19 +30,6 @@ class Card:
     def __str__(self):
         return f"{self.cards} or {self.type}"
 
-# deck generation
-def card_deck():
-    deck = []
-    for suit in card_suits:
-        for card in cards:
-            card = Card(card, suit)
-    return deck
-
-def shuffle_cards(deck_count = 5):
-    reg_deck = card_deck()
-    full_deck = copy.deepcopy(reg_deck * full_deck)
-    random.shuffle(full_deck)
-    return full_deck
 
 
 
