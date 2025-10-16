@@ -14,7 +14,6 @@ ASSETS_DIR = BASE_DIR / "assets"
 
 app = Flask(__name__, template_folder=str(ASSETS_DIR), static_folder=str(ASSETS_DIR))
 
-# Security baseline
 app.config.update(
     SECRET_KEY=os.environ.get("SECRET_KEY", "change-this-in-prod"),
     SESSION_COOKIE_SECURE=False,  # Set to False for development (HTTP)
@@ -23,8 +22,6 @@ app.config.update(
     WTF_CSRF_ENABLED=True,
 )
 
-# HTTPS-related headers & policies (dev: will not actually provide TLS, use reverse-proxy in prod)
-# Allow inline styles and scripts for development
 Talisman(app, 
          force_https=False, 
          strict_transport_security=True,
@@ -36,11 +33,9 @@ Talisman(app,
              'font-src': ["'self'", "https:", "data:"]
          })
 
-# CSRF and bcrypt
 csrf = CSRFProtect(app)
 bcrypt = Bcrypt(app)
 
-# Game state storage (in production, use Redis or database)
 active_games = {}
 
 
@@ -50,17 +45,14 @@ def load_users():
         DATA_FILE.write_text("{}", encoding="utf-8")
     try:
         data = json.loads(DATA_FILE.read_text(encoding="utf-8") or "{}")
-        # Ensure we always return a dict, not a list
         if isinstance(data, list):
             return {}
         
-        # Convert dict data to User objects
         users = {}
         for username, user_data in data.items():
             if isinstance(user_data, dict) and 'username' in user_data:
                 users[username] = User.from_dict(user_data)
             else:
-                # Handle old format (just password_hash)
                 users[username] = User(
                     username=username,
                     password=user_data.get('password_hash', ''),
@@ -76,7 +68,6 @@ def load_users():
 
 def save_users(users: dict) -> None:
     DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-    # Convert User objects to dict format
     user_dicts = {}
     for username, user in users.items():
         if isinstance(user, User):
@@ -122,7 +113,7 @@ def dashboard():
         money_won = user.money_won
         money_lost = user.money_lost
     else:
-        balance = 1000  # Default for guest or old format
+        balance = 1000 
         money_won = 0
         money_lost = 0
     
@@ -137,8 +128,8 @@ def blackjack():
     if user and isinstance(user, User):
         balance = user.balance
     else:
-        balance = 1000  # Default for guest or old format
-    
+        balance = 1000
+
     return render_template("blackjack.html", username=user_id, balance=balance)
 
 @app.route("/deposit")
@@ -194,7 +185,6 @@ def api_blackjack_deal():
     data = request.get_json(silent=True) or request.form.to_dict()
     bet_amount = float(data.get("bet_amount", 100))
     
-    # Check if user has enough balance
     users = load_users()
     user = users.get(user_id)
     if not user or not isinstance(user, User):
@@ -203,7 +193,6 @@ def api_blackjack_deal():
     if user.balance < bet_amount:
         return jsonify({"ok": False, "error": "Insufficient balance"}), 400
     
-    # Create new game
     game = BlackjackGame()
     game.deal_initial_cards()
     active_games[user_id] = {
@@ -212,7 +201,6 @@ def api_blackjack_deal():
         'initial_balance': user.balance
     }
     
-    # Deduct bet from balance
     user.balance -= bet_amount
     save_users(users)
     
@@ -271,19 +259,15 @@ def api_blackjack_stand():
     game.player_stay()
     result = game.get_game_result()
     
-    # Update user balance based on result
     users = load_users()
     user = users.get(user_id)
     if user and isinstance(user, User):
         if result == "player_wins" or result == "dealer_bust":
-            # Player wins - return bet + winnings (1:1 payout)
             user.balance += bet_amount * 2
             user.money_won += bet_amount
         elif result == "tie":
-            # Push - return bet
             user.balance += bet_amount
         else:
-            # Player loses - bet already deducted
             user.money_lost += bet_amount
         
         user.games_played += 1
@@ -354,7 +338,6 @@ def api_sign_in():
     if not user:
         return jsonify({"ok": False, "error": "Invalid credentials"}), 401
 
-    # Handle both User objects and old dict format
     if isinstance(user, User):
         password_hash = user.password
     else:
@@ -363,7 +346,6 @@ def api_sign_in():
     if not bcrypt.check_password_hash(password_hash, password):
         return jsonify({"ok": False, "error": "Invalid credentials"}), 401
 
-    # Store user in session
     session['user_id'] = user_id
     return jsonify({"ok": True})
 
