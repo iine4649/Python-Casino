@@ -45,3 +45,76 @@ if win==True:
     print("you win! with a total of", sum(user), "you now have",Bet*2,"dollars")
 else:
     print("you lose. with a total of", sum(user), "you now have 0 dollars")
+'''
+
+
+class BlackjackGame:
+    def __init__(self):
+        self.user = []
+        self.bot = []
+        self.game_over = False
+        self.player_stayed = False
+        self.round = 1
+
+    def deal_initial_cards(self):
+        for _ in range(2):
+            self.user.append(random.randint(1, 10))
+            self.bot.append(random.randint(1, 10))
+        return self.user, self.bot
+    
+    def draw_card(self, player):
+        card = random.randint(1, 10)
+        if player == 'user':
+            self.user.append(card)
+            return self.user
+        elif player == 'bot':
+            self.bot.append(card)
+            return self.bot
+        
+    def hit_player(self):
+        if not self.game_over:
+            self.draw_card('user')
+            if self.calculate_total(self.user) > 21:
+                self.game_over = True
+            return self.user
+        return None
+    
+    def player_stay(self):
+        self.player_stayed = True
+        while self.calculate_total(self.bot) <= 16:
+            self.draw_card('bot')
+        self.game_over = True
+        return self.bot
+    
+    def play_dealer(self):
+        if self.player_stayed and not self.game_over:
+            while self.calculate_total(self.bot) <= 16:
+                self.draw_card('bot')
+            self.game_over = True
+            return self.bot
+        return None
+    
+    def get_player_total(self):
+        return self.calculate_total(self.user)
+    
+    def get_dealer_total(self):
+        return self.calculate_total(self.bot)
+    
+    def get_game_result(self):
+        if not self.game_over:
+            return None
+        user_total = self.calculate_total(self.user)
+        bot_total = self.calculate_total(self.bot)
+        
+        if user_total > 21:
+            return 'lose'
+        elif bot_total > 21 or user_total > bot_total:
+            return 'win'
+        elif user_total < bot_total:
+            return 'lose'
+        else:
+            return 'tie'
+
+    def cart_to_string(self, cards):
+        #TODO make it so K,Q,J are 10 and A is 1
+    
