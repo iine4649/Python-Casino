@@ -22,7 +22,7 @@ class BlackjackGame:
     def draw_card(self, who):
         card = random.choice(self.cards)
         value = self.card_value(card)
-        print(f"{who.capitalize()} drew a {card}! (value = {value})")
+        print(f"{who.capitalize()} drew a {card}")
 
         if who == 'user':
             self.user.append(card)
@@ -68,3 +68,33 @@ class BlackjackGame:
             return 'lose'
         else:
             return 'tie'
+game=BlackjackGame()
+
+for _ in range(2):
+    game.draw_card('user')
+    game.draw_card('bot')
+
+print(f"Your cards: {game.user} (total = {game.calculate_total(game.user)})")
+print(f"Dealer shows: {game.bot[0]}")
+while not game.game_over and not game.player_stayed:
+    choice = input("Hit or stay? (h/s): ").lower()
+    if choice == 'h':
+        game.hit_player()
+        print(f"Your cards: {game.user} (total = {game.calculate_total(game.user)})")
+        if game.calculate_total(game.user) > 21:
+            print("You busted!")
+    elif choice == 's':
+        game.player_stay()
+user_total = game.calculate_total(game.user)
+bot_total = game.calculate_total(game.bot)
+print("\nFinal Results:")
+print(f"Your hand: {game.user} (total = {user_total})")
+print(f"Dealer's hand: {game.bot} (total = {bot_total})")
+
+result = game.get_game_result()
+if result == 'win':
+    print("You win!")
+elif result == 'lose':
+    print("You lose!")
+else:
+    print("It's a tie!")
