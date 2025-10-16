@@ -1,6 +1,7 @@
-import random 
-import time 
-user=[]
+import random
+
+
+'''
 bot=[]
 win=False
 dealerstays=False
