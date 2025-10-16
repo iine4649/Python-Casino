@@ -41,24 +41,15 @@ class BlackjackGame:
                 self.game_over = True
             return self.user
         return None
-    
-    def player_stay(self):
-        self.player_stayed = True
-        print("Dealer's turn...")
-        time.sleep(1)
-        while self.calculate_total(self.bot) <= 16:
-            self.draw_card('bot')
-            time.sleep(1)
-        self.game_over = True
-        return self.bot
-    
     def get_game_result(self):
-        if not self.game_over:
-            return None
         user_total = self.calculate_total(self.user)
         bot_total = self.calculate_total(self.bot)
         
-        if user_total > 21:
+        if user_total ==21:
+            return 'win'
+        elif bot_total ==21:
+            return 'lose'
+        elif user_total > 21:
             return 'lose'
         elif bot_total > 21:
             return 'win'
@@ -75,18 +66,23 @@ for _ in range(2):
     game.draw_card('bot')
 
 print(f"Your cards: {game.user} (total = {game.calculate_total(game.user)})")
-print(f"Dealer shows: {game.bot[0]}")
-while not game.game_over and not game.player_stayed:
+print(f"Dealer shows: {game.bot} (total = {game.calculate_total(game.bot)})")
+while not game.game_over and game.calculate_total(game.user)<21 and game.calculate_total(game.bot)<21:
     choice = input("Hit or stay? (h/s): ").lower()
     if choice == 'h':
         game.hit_player()
         print(f"Your cards: {game.user} (total = {game.calculate_total(game.user)})")
-        if game.calculate_total(game.user) > 21:
-            print("You busted!")
     elif choice == 's':
-        game.player_stay()
-user_total = game.calculate_total(game.user)
-bot_total = game.calculate_total(game.bot)
+        game.player_stayed = True
+        if game.calculate_total(game.bot)>=17:
+            game.game_over = True
+            break
+    if game.calculate_total(game.bot)<17:
+        game.draw_card('bot')
+        time.sleep(1)
+    print(f"Dealer's cards: {game.bot} (total = {game.calculate_total(game.bot)})")
+    user_total = game.calculate_total(game.user)
+    bot_total = game.calculate_total(game.bot)
 print("\nFinal Results:")
 print(f"Your hand: {game.user} (total = {user_total})")
 print(f"Dealer's hand: {game.bot} (total = {bot_total})")
