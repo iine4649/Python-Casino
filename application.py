@@ -1,14 +1,19 @@
+# Elastic Beanstalk entry point - Complete Flask application
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_wtf import CSRFProtect
 from flask_bcrypt import Bcrypt
 from flask_talisman import Talisman
-from roulette import RouletteGame
 import json, os, random
 from pathlib import Path
+
+# Import our modules
+import sys
+sys.path.append('src')
 from user import User
 from game import BlackjackGame
+from roulette import RouletteGame
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 DATA_FILE = BASE_DIR / "data" / "userdata.json"
 ASSETS_DIR = BASE_DIR / "assets"
 
@@ -66,65 +71,179 @@ def load_users():
     except json.JSONDecodeError:
         return {}
 
-def save_users(users: dict) -> None:
-    DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-    user_dicts = {}
+def save_users(users):
+    data = {}
     for username, user in users.items():
         if isinstance(user, User):
-            user_dicts[username] = user.to_dict()
+            data[username] = user.to_dict()
         else:
-            user_dicts[username] = user
-    DATA_FILE.write_text(json.dumps(user_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
+            data[username] = user
+    DATA_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 # ------------------------------
 # Routes
 # ------------------------------
 
 @app.route("/")
+def index():
+    return redirect(url_for('login'))
+
+@app.route("/login")
 def login():
-    if session.get('user_id'):
-        return redirect(url_for('lobby'))
     return render_template("secure_login.html")
 
-@app.route("/sign-up")
-def sign_up():
+@app.route("/signup")
+def signup():
     return render_template("secure_sign_up.html")
 
 @app.route("/lobby")
 def lobby():
-    user_id = session.get('user_id', 'Guest')
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+    
     users = load_users()
     user = users.get(user_id)
-    balance = user.balance if user else 1000
-    return render_template("lobby.html", username=user_id, balance=balance)
+    if not user or not isinstance(user, User):
+        return redirect(url_for('login'))
+    
+    return render_template("lobby.html", username=user.username, balance=user.balance)
 
 @app.route("/dashboard")
 def dashboard():
-    user_id = session.get('user_id', 'Guest')
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+    
     users = load_users()
     user = users.get(user_id)
-    if user and isinstance(user, User):
-        balance, money_won, money_lost = user.balance, user.money_won, user.money_lost
-    else:
-        balance, money_won, money_lost = 1000, 0, 0
-    return render_template("dashboard.html", username=user_id, balance=balance, money_won=money_won, money_lost=money_lost)
-
-@app.route("/blackjack")
-def blackjack():
-    user_id = session.get('user_id', 'Guest')
-    users = load_users()
-    user = users.get(user_id)
-    balance = user.balance if user else 1000
-    return render_template("blackjack.html", username=user_id, balance=balance)
+    if not user or not isinstance(user, User):
+        return redirect(url_for('login'))
+    
+    return render_template("dashboard.html", 
+                         username=user.username, 
+                         balance=user.balance,
+                         money_won=user.money_won,
+                         money_lost=user.money_lost,
+                         games_played=user.games_played)
 
 @app.route("/deposit")
 def deposit():
-    user_id = session.get('user_id', 'Guest')
-    return render_template("deposit.html", username=user_id)
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+    
+    users = load_users()
+    user = users.get(user_id)
+    if not user or not isinstance(user, User):
+        return redirect(url_for('login'))
+    
+    return render_template("deposit.html", username=user.username, balance=user.balance)
+
+@app.route("/blackjack")
+def blackjack():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+    
+    users = load_users()
+    user = users.get(user_id)
+    if not user or not isinstance(user, User):
+        return redirect(url_for('login'))
+    
+    return render_template("blackjack.html", username=user.username, balance=user.balance)
+
+@app.route("/roulette")
+def roulette():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+    
+    users = load_users()
+    user = users.get(user_id)
+    if not user or not isinstance(user, User):
+        return redirect(url_for('login'))
+    
+    return render_template("roulette.html", username=user.username, balance=user.balance)
 
 # ------------------------------
-# Blackjack
+# API Routes
 # ------------------------------
+
+@app.post("/api/sign-up")
+@csrf.exempt
+def api_sign_up():
+    data = request.get_json(silent=True) or request.form.to_dict()
+    username = data.get("username", "").strip()
+    password = data.get("password", "").strip()
+    
+    if not username or not password:
+        return jsonify({"ok": False, "error": "Username and password are required"}), 400
+    
+    users = load_users()
+    if username in users:
+        return jsonify({"ok": False, "error": "Username already exists"}), 400
+    
+    password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+    new_user = User(
+        username=username,
+        password=password_hash,
+        balance=500.0,
+        money_won=0.0,
+        money_lost=0.0,
+        games_played=0
+    )
+    
+    users[username] = new_user
+    save_users(users)
+    
+    session['user_id'] = username
+    return jsonify({"ok": True, "redirect": "/lobby"})
+
+@app.post("/api/sign-in")
+@csrf.exempt
+def api_sign_in():
+    data = request.get_json(silent=True) or request.form.to_dict()
+    username = data.get("username", "").strip()
+    password = data.get("password", "").strip()
+    
+    if not username or not password:
+        return jsonify({"ok": False, "error": "Username and password are required"}), 400
+    
+    users = load_users()
+    user = users.get(username)
+    
+    if not user or not isinstance(user, User):
+        return jsonify({"ok": False, "error": "Invalid credentials"}), 401
+    
+    if not bcrypt.check_password_hash(user.password, password):
+        return jsonify({"ok": False, "error": "Invalid credentials"}), 401
+    
+    session['user_id'] = username
+    return jsonify({"ok": True, "redirect": "/lobby"})
+
+@app.post("/api/deposit")
+@csrf.exempt
+def api_deposit():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"ok": False, "error": "Not logged in"}), 401
+    
+    data = request.get_json(silent=True) or request.form.to_dict()
+    amount = float(data.get("amount", 0))
+    
+    if amount <= 0:
+        return jsonify({"ok": False, "error": "Amount must be positive"}), 400
+    
+    users = load_users()
+    user = users.get(user_id)
+    if not user or not isinstance(user, User):
+        return jsonify({"ok": False, "error": "User not found"}), 404
+    
+    user.balance += amount
+    save_users(users)
+    
+    return jsonify({"ok": True, "new_balance": user.balance})
 
 @app.post("/api/blackjack/deal")
 @csrf.exempt
@@ -144,7 +263,6 @@ def api_blackjack_deal():
     if user.balance < bet_amount:
         return jsonify({"ok": False, "error": "Insufficient balance"}), 400
     
-    # Create new game
     game = BlackjackGame()
     game.deal_initial_cards()
     active_games[user_id] = {
@@ -153,7 +271,6 @@ def api_blackjack_deal():
         'initial_balance': user.balance
     }
     
-    # Deduct bet from balance
     user.balance -= bet_amount
     save_users(users)
     
@@ -166,7 +283,6 @@ def api_blackjack_deal():
         "game_over": game.game_over,
         "new_balance": user.balance
     })
-
 
 @app.post("/api/blackjack/hit")
 @csrf.exempt
@@ -181,19 +297,16 @@ def api_blackjack_hit():
     game_data = active_games[user_id]
     game = game_data['game']
     
-    result = game.hit_player()
+    game.hit_player()
     
     return jsonify({
         "ok": True,
         "player_cards": [game.card_to_string(card) for card in game.user],
         "dealer_cards": [game.card_to_string(card) if i > 0 else "?" for i, card in enumerate(game.bot)],
         "player_total": game.get_player_total(),
-        "dealer_total": "?" if not game.game_over else game.get_dealer_total(),
-        "game_over": game.game_over,
-        "result": "bust" if game.game_over else "hit",
-        "game_result": game.get_game_result() if game.game_over else "playing"
+        "dealer_total": "?" if len(game.bot) > 0 else 0,
+        "game_over": game.game_over
     })
-
 
 @app.post("/api/blackjack/stand")
 @csrf.exempt
@@ -210,24 +323,31 @@ def api_blackjack_stand():
     bet_amount = game_data['bet']
     
     game.player_stay()
+    game.play_dealer()
+    
     result = game.get_game_result()
     
-    # Update user balance based on result
     users = load_users()
     user = users.get(user_id)
-    if user and isinstance(user, User):
-        if result == "win":
-            user.balance += bet_amount * 2
-            user.money_won += bet_amount
-        elif result == "tie":
-            user.balance += bet_amount
-        else:
-            user.money_lost += bet_amount
-        
-        user.games_played += 1
-        save_users(users)
+    if not user or not isinstance(user, User):
+        return jsonify({"ok": False, "error": "User not found"}), 404
     
-    # Clean up game
+    if result == "win":
+        winnings = bet_amount * 2
+        user.balance += winnings
+        user.money_won += bet_amount
+        message = f"You won ${bet_amount}!"
+    elif result == "lose":
+        user.money_lost += bet_amount
+        message = f"You lost ${bet_amount}."
+    else:  # tie
+        user.balance += bet_amount
+        message = "It's a tie! Your bet is returned."
+    
+    user.games_played += 1
+    save_users(users)
+    
+    # Clear the active game
     del active_games[user_id]
     
     return jsonify({
@@ -236,58 +356,11 @@ def api_blackjack_stand():
         "dealer_cards": [game.card_to_string(card) for card in game.bot],
         "player_total": game.get_player_total(),
         "dealer_total": game.get_dealer_total(),
-        "game_over": True,
-        "game_result": result,
-        "new_balance": user.balance if user and isinstance(user, User) else 0,
-        "bet": bet_amount
+        "game_over": game.game_over,
+        "result": result,
+        "message": message,
+        "new_balance": user.balance
     })
-
-
-@app.post("/api/deposit")
-@csrf.exempt
-def api_deposit():
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"ok": False, "error": "Not logged in"}), 401
-    
-    data = request.get_json(silent=True) or request.form.to_dict()
-    amount = data.get("amount")
-    
-    try:
-        amount = float(amount)
-        if amount <= 0:
-            return jsonify({"ok": False, "error": "Amount must be positive"}), 400
-    except (ValueError, TypeError):
-        return jsonify({"ok": False, "error": "Invalid amount"}), 400
-    
-    users = load_users()
-    user = users.get(user_id)
-    
-    if not user or not isinstance(user, User):
-        return jsonify({"ok": False, "error": "User not found"}), 404
-    
-    # Add deposit amount to balance
-    user.deposit(amount)
-    save_users(users)
-    
-    return jsonify({
-        "ok": True,
-        "new_balance": user.balance,
-        "deposited": amount
-    })
-
-
-# ------------------------------
-# Roulette
-# ------------------------------
-
-@app.route("/roulette")
-def roulette():
-    user_id = session.get('user_id', 'Guest')
-    users = load_users()
-    user = users.get(user_id)
-    balance = user.balance if user else 1000
-    return render_template("roulette.html", username=user_id, balance=balance)
 
 @app.post("/api/roulette/spin")
 @csrf.exempt
@@ -348,49 +421,6 @@ def roulette_spin():
         'new_balance': user.balance
     })
 
-# ------------------------------
-# Auth API
-# ------------------------------
-
-@app.post("/api/sign-up")
-@csrf.exempt
-def api_sign_up():
-    data = request.get_json(silent=True) or request.form.to_dict()
-    user_id = (data.get("user_id") or "").strip()
-    password = data.get("password") or ""
-    password_confirm = data.get("password_confirm") or data.get("password2") or ""
-
-    if not user_id or not password:
-        return jsonify({"ok": False, "error": "Missing credentials"}), 400
-    if password != password_confirm:
-        return jsonify({"ok": False, "error": "Passwords do not match"}), 400
-
-    users = load_users()
-    if user_id in users:
-        return jsonify({"ok": False, "error": "User already exists"}), 409
-
-    hashed = bcrypt.generate_password_hash(password).decode("utf-8")
-    new_user = User(username=user_id, password=hashed, balance=10000)
-    users[user_id] = new_user
-    save_users(users)
-    return jsonify({"ok": True}), 201
-
-@app.post("/api/sign-in")
-@csrf.exempt
-def api_sign_in():
-    data = request.get_json(silent=True) or request.form.to_dict()
-    user_id = (data.get("user_id") or "").strip()
-    password = data.get("password") or ""
-    users = load_users()
-    user = users.get(user_id)
-    if not user:
-        return jsonify({"ok": False, "error": "Invalid credentials"}), 401
-    password_hash = user.password if isinstance(user, User) else user.get("password_hash", "")
-    if not bcrypt.check_password_hash(password_hash, password):
-        return jsonify({"ok": False, "error": "Invalid credentials"}), 401
-    session['user_id'] = user_id
-    return jsonify({"ok": True})
-
 @app.route("/logout")
 def logout():
     session.pop('user_id', None)
@@ -400,4 +430,5 @@ if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
 
+# Elastic Beanstalk entry point
 application = app
