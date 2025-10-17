@@ -4,7 +4,7 @@ from dataclasses import dataclass
 class User:
     username: str
     password: str
-    balance: int = 500
+    balance: int = 100
     money_won: int = 0
     money_lost: int = 0
     games_played: int = 0
