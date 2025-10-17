@@ -61,7 +61,9 @@ class BlackjackGame:
             return 'lose'
         else:
             return 'tie'
-bet=int(input("Enter your bet amount: "))
+
+
+'''
 while True:
     game = BlackjackGame()
     for i in range(2):
@@ -104,3 +106,4 @@ while True:
     play_again = input("Play again? (y/n): ")
     if play_again != 'y':
         break
+    '''

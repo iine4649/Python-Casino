@@ -37,9 +37,6 @@ csrf = CSRFProtect(app)
 bcrypt = Bcrypt(app)
 active_games = {}
 
-# ------------------------------
-# User Management
-# ------------------------------
 
 def load_users():
     if not DATA_FILE.exists():
@@ -76,9 +73,7 @@ def save_users(users: dict) -> None:
             user_dicts[username] = user
     DATA_FILE.write_text(json.dumps(user_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
 
-# ------------------------------
-# Routes
-# ------------------------------
+
 
 @app.route("/")
 def login():
@@ -128,9 +123,6 @@ def deposit():
     user_id = session.get('user_id', 'Guest')
     return render_template("deposit.html", username=user_id)
 
-# ------------------------------
-# Roulette
-# ------------------------------
 
 @app.route("/roulette")
 def roulette():
@@ -198,10 +190,6 @@ def roulette_spin():
         'message': message,
         'new_balance': user.balance
     })
-
-# ------------------------------
-# Auth API
-# ------------------------------
 
 @app.post("/api/sign-up")
 @csrf.exempt

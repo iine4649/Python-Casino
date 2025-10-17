@@ -211,7 +211,6 @@ body {
 
 <div class="game-container">
   <div class="game-table">
-    <!-- Bet Controls -->
     <div class="bet-controls">
       <div class="bet-display">
         <div style="font-size: 14px; color: var(--muted); margin-bottom: 5px;">Bet Amount</div>
@@ -223,12 +222,10 @@ body {
       </div>
     </div>
 
-    <!-- Game Areas -->
     <div class="game-area">
       <div class="dealer-area">
         <div class="area-title">Dealer</div>
         <div class="cards" id="dealerCards">
-          <!-- Cards will be displayed here -->
         </div>
         <div style="font-size: 14px; color: var(--muted);">Total: <span id="dealerTotal">0</span></div>
       </div>
@@ -236,13 +233,11 @@ body {
       <div class="player-area">
         <div class="area-title">Your Cards</div>
         <div class="cards" id="playerCards">
-          <!-- Cards will be displayed here -->
         </div>
         <div style="font-size: 14px; color: var(--muted);">Total: <span id="playerTotal">0</span></div>
       </div>
     </div>
 
-    <!-- Game Buttons -->
     <div class="game-buttons">
       <button class="btn btn-primary" id="dealBtn" onclick="dealCards()">Deal Cards</button>
       <button class="btn btn-secondary" id="hitBtn" onclick="hit()" style="display: none;">Hit</button>
@@ -250,7 +245,6 @@ body {
       <button class="btn btn-secondary" id="newGameBtn" onclick="newGame()" style="display: none;">New Game</button>
     </div>
 
-    <!-- Game Status -->
     <div style="text-align: center; margin-top: 20px; font-size: 16px; font-weight: 600;" id="gameStatus">
       Place your bet and click "Deal Cards" to start!
     </div>
@@ -269,7 +263,6 @@ let dealerCards = [];
 let playerTotal = 0;
 let dealerTotal = 0;
 
-// Minimum bet is 100
 const MIN_BET = 100;
 
 function updateBetDisplay() {
@@ -374,7 +367,6 @@ async function stand() {
       updateCardsDisplay();
       updateBalance(result.new_balance);
       
-      // Show result
       let message = '';
       switch(result.game_result) {
         case 'player_wins':
@@ -463,7 +455,6 @@ function endGame() {
   document.getElementById('newGameBtn').style.display = 'inline-block';
 }
 
-// Initialize
 updateBetDisplay();
 </script>
 </body>
