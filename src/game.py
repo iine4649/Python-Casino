@@ -61,6 +61,7 @@ class BlackjackGame:
             return 'lose'
         else:
             return 'tie'
+total=0
 bet=int(input("Enter your bet amount: "))
 while True:
     game = BlackjackGame()
@@ -96,10 +97,12 @@ while True:
         bet=2*bet
     elif result == 'lose':
         print("You lose!")
-        bet
+        bet=-bet
     else:
         print("It's a tie!")
     print(f"Your bet was: {bet}")
     play_again = input("Play again? (y/n): ")
     if play_again != 'y':
         break
+total+=bet
+print(f"Your total balance is now: {total}")
