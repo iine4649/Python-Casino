@@ -168,11 +168,25 @@ def api_blackjack_hit():
     user = users.get(user_id)
 
     result = None
+    game_over = False
+
     if player_total > 21:
         user.money_lost += bet
         save_users(users)
         del active_games[user_id]
         result = "bust"
+        game_over = True
+
+        return jsonify({
+            "ok": True,
+            "player_cards": [game.card_to_string(c) for c in game.player_cards],
+            "dealer_cards": [game.card_to_string(c) for c in game.dealer_cards],
+            "player_total": player_total,
+            "dealer_total": game.get_dealer_total(),
+            "result": result,
+            "game_over": game_over,
+            "new_balance": user.balance
+        })
 
     save_users(users)
     return jsonify({
@@ -182,6 +196,7 @@ def api_blackjack_hit():
         "player_total": player_total,
         "dealer_total": "?",
         "result": result,
+        "game_over": game_over,
         "new_balance": user.balance
     })
 
@@ -222,6 +237,9 @@ def api_blackjack_stand():
         "player_total": player_total,
         "dealer_total": dealer_total,
         "result": result,
+        "game_result": result,
+        "bet": bet,
+        "game_over": True,
         "new_balance": user.balance
     })
 
@@ -278,8 +296,8 @@ def roulette_spin():
         return jsonify({'ok': False, 'error': 'Not logged in'}), 403
 
     data = request.get_json(silent=True) or {}
-    bet_color = data.get('bet_color')   # red, black, green, or None
-    bet_number = data.get('bet_number') # 0–36 or None
+    bet_color = data.get('bet_color')   
+    bet_number = data.get('bet_number') 
     bet_amount = int(data.get('bet_amount', 100))
 
     users = load_users()
@@ -295,13 +313,11 @@ def roulette_spin():
     payout = 0
     win_type = None
 
-    # Color bet
     if bet_color == color:
         payout = bet_amount * (14 if color == "green" else 2)
         win = True
         win_type = "color"
 
-    # Number bet
     if bet_number is not None:
         try:
             bet_number = int(bet_number)
@@ -329,9 +345,7 @@ def roulette_spin():
         'new_balance': user.balance
     })
 
-# ------------------------------
-# Auth API
-# ------------------------------
+
 
 @app.post("/api/sign-up")
 @csrf.exempt
