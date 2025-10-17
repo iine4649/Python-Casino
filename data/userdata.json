@@ -26,9 +26,9 @@
   "qilok": {
     "username": "qilok",
     "password": "$2b$12$WA5XPmoD9HMHb5oe6yNAYukPyz03IMSDXOH.2aHKYxODLSFnZemNC",
-    "balance": 50.0,
-    "money_won": 6700,
-    "money_lost": 6800,
+    "balance": 400.0,
+    "money_won": 6800.0,
+    "money_lost": 9000.0,
     "games_played": 135
   }
 }
