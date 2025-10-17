@@ -15,8 +15,10 @@ class BlackjackGame:
             return int(card)
         elif card in ['J', 'Q', 'K']:
             return 10
-        elif card == 'A':
-            return 1  
+        elif card == 'A' and self.calculate_total(self.user)<=10:
+            return 11
+        elif card == 'A' and self.calculate_total(self.user)>10:
+            return 1
 
     
     def draw_card(self, who):
@@ -59,38 +61,45 @@ class BlackjackGame:
             return 'lose'
         else:
             return 'tie'
-game=BlackjackGame()
-
-for _ in range(2):
-    game.draw_card('user')
-    game.draw_card('bot')
-
-print(f"Your cards: {game.user} (total = {game.calculate_total(game.user)})")
-print(f"Dealer shows: {game.bot} (total = {game.calculate_total(game.bot)})")
-while not game.game_over and game.calculate_total(game.user)<21 and game.calculate_total(game.bot)<21:
-    choice = input("Hit or stay? (h/s): ").lower()
-    if choice == 'h':
-        game.hit_player()
-        print(f"Your cards: {game.user} (total = {game.calculate_total(game.user)})")
-    elif choice == 's':
-        game.player_stayed = True
-        if game.calculate_total(game.bot)>=17:
-            game.game_over = True
-            break
-    if game.calculate_total(game.bot)<17:
+bet=int(input("Enter your bet amount: "))
+while True:
+    game = BlackjackGame()
+    for i in range(2):
+        game.draw_card('user')
         game.draw_card('bot')
-        time.sleep(1)
-    print(f"Dealer's cards: {game.bot} (total = {game.calculate_total(game.bot)})")
-    user_total = game.calculate_total(game.user)
-    bot_total = game.calculate_total(game.bot)
-print("\nFinal Results:")
-print(f"Your hand: {game.user} (total = {user_total})")
-print(f"Dealer's hand: {game.bot} (total = {bot_total})")
 
-result = game.get_game_result()
-if result == 'win':
-    print("You win!")
-elif result == 'lose':
-    print("You lose!")
-else:
-    print("It's a tie!")
+    print(f"Your cards: {game.user} (total = {game.calculate_total(game.user)})")
+    print(f"Dealer shows: {game.bot} (total = {game.calculate_total(game.bot)})")
+    while not game.game_over and game.calculate_total(game.user)<21 and game.calculate_total(game.bot)<21:
+        choice = input("Hit or stay? (h/s): ").lower()
+        if choice == 'h':
+            game.hit_player()
+        elif choice == 's':
+            game.player_stayed = True
+            if game.calculate_total(game.bot)>=17:
+                game.game_over = True
+                break
+        if game.calculate_total(game.bot)<17:
+            game.draw_card('bot')
+            time.sleep(1)
+        print(f"Your cards: {game.user} (total = {game.calculate_total(game.user)})")
+        print(f"Dealer's cards: {game.bot} (total = {game.calculate_total(game.bot)})")
+        user_total = game.calculate_total(game.user)
+        bot_total = game.calculate_total(game.bot)
+    print("\nFinal Results:")
+    print(f"Your hand: {game.user} (total = {user_total})")
+    print(f"Dealer's hand: {game.bot} (total = {bot_total})")
+
+    result = game.get_game_result()
+    if result == 'win':
+        print("You win!")
+        bet=2*bet
+    elif result == 'lose':
+        print("You lose!")
+        bet
+    else:
+        print("It's a tie!")
+    print(f"Your bet was: {bet}")
+    play_again = input("Play again? (y/n): ")
+    if play_again != 'y':
+        break
