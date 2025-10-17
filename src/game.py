@@ -1,53 +1,5 @@
 import random
-
-
-'''
-bot=[]
-win=False
-dealerstays=False
-Round=1
-print("welcome to blackjack! You start with 2 cards, try to get as close to 21 as possible without going over.")
-time.sleep(1)
-print("Aces are worth 1, face cards are worth 10. Good luck!")
-Bet=int(input("how much do you want to bet?"))
-for i in range(2):
-    user.append(random.randint(1,10))
-    bot.append(random.randint(1,10))
-print("your cards:",user)
-print("dealer's cards is:",bot)
-while sum(user)<21 and sum(bot)<21:
-    choice=input("do you want to hit or stay? (h/s)")
-    if choice=="h":
-        user.append(random.randint(1,10))
-    if sum(bot)<=16:
-        time.sleep(2)
-        print("dealer hits")
-        bot.append(random.randint(1,10))
-    elif sum(bot)>16:
-        dealerstays=True
-    if choice=="s" and dealerstays:
-        break
-    print("your cards:",user, "total:", sum(user))
-    print("dealer's cards:",bot, "total:", sum(bot))
-if sum(user)==21:
-    win=True
-elif sum(bot)==21:
-    win=False
-elif sum(user)>21:
-    win=False
-elif sum(bot)>21:
-    win=True
-elif sum(user)>sum(bot):
-    win=True
-elif sum(user)==sum(bot):
-    print("it's a tie! with a total of", sum(user), "you now have",Bet,"dollars")
-if win==True:
-    print("you win! with a total of", sum(user), "you now have",Bet*2,"dollars")
-else:
-    print("you lose. with a total of", sum(user), "you now have 0 dollars")
-'''
-
-
+import time
 class BlackjackGame:
     def __init__(self):
         self.user = []
@@ -55,22 +7,35 @@ class BlackjackGame:
         self.game_over = False
         self.player_stayed = False
         self.round = 1
+        self.cards = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
 
-    def deal_initial_cards(self):
-        for _ in range(2):
-            self.user.append(random.randint(1, 10))
-            self.bot.append(random.randint(1, 10))
-        return self.user, self.bot
+
+    def card_value(self, card):
+        if card.isdigit():    
+            return int(card)
+        elif card in ['J', 'Q', 'K']:
+            return 10
+        elif card == 'A' and self.calculate_total(self.user)<=10:
+            return 11
+        elif card == 'A' and self.calculate_total(self.user)>10:
+            return 1
+
     
-    def draw_card(self, player):
-        card = random.randint(1, 10)
-        if player == 'user':
+    def draw_card(self, who):
+        card = random.choice(self.cards)
+        value = self.card_value(card)
+        print(f"{who.capitalize()} drew a {card}")
+
+        if who == 'user':
             self.user.append(card)
-            return self.user
-        elif player == 'bot':
+        else:
             self.bot.append(card)
-            return self.bot
-        
+        return card, value
+    
+    def calculate_total(self, hand):
+        total = sum(self.card_value(card) for card in hand)
+        return total
+    
     def hit_player(self):
         if not self.game_over:
             self.draw_card('user')
@@ -78,43 +43,63 @@ class BlackjackGame:
                 self.game_over = True
             return self.user
         return None
-    
-    def player_stay(self):
-        self.player_stayed = True
-        while self.calculate_total(self.bot) <= 16:
-            self.draw_card('bot')
-        self.game_over = True
-        return self.bot
-    
-    def play_dealer(self):
-        if self.player_stayed and not self.game_over:
-            while self.calculate_total(self.bot) <= 16:
-                self.draw_card('bot')
-            self.game_over = True
-            return self.bot
-        return None
-    
-    def get_player_total(self):
-        return self.calculate_total(self.user)
-    
-    def get_dealer_total(self):
-        return self.calculate_total(self.bot)
-    
     def get_game_result(self):
-        if not self.game_over:
-            return None
         user_total = self.calculate_total(self.user)
         bot_total = self.calculate_total(self.bot)
         
-        if user_total > 21:
+        if user_total ==21:
+            return 'win'
+        elif bot_total ==21:
             return 'lose'
-        elif bot_total > 21 or user_total > bot_total:
+        elif user_total > 21:
+            return 'lose'
+        elif bot_total > 21:
+            return 'win'
+        elif user_total > bot_total:
             return 'win'
         elif user_total < bot_total:
             return 'lose'
         else:
             return 'tie'
+bet=int(input("Enter your bet amount: "))
+while True:
+    game = BlackjackGame()
+    for i in range(2):
+        game.draw_card('user')
+        game.draw_card('bot')
 
-    def card_to_string(self, cards):
-        #TODO make it so K,Q,J are 10 and A is 1
-        pass
+    print(f"Your cards: {game.user} (total = {game.calculate_total(game.user)})")
+    print(f"Dealer shows: {game.bot} (total = {game.calculate_total(game.bot)})")
+    while not game.game_over and game.calculate_total(game.user)<21 and game.calculate_total(game.bot)<21:
+        choice = input("Hit or stay? (h/s): ").lower()
+        if choice == 'h':
+            game.hit_player()
+        elif choice == 's':
+            game.player_stayed = True
+            if game.calculate_total(game.bot)>=17:
+                game.game_over = True
+                break
+        if game.calculate_total(game.bot)<17:
+            game.draw_card('bot')
+            time.sleep(1)
+        print(f"Your cards: {game.user} (total = {game.calculate_total(game.user)})")
+        print(f"Dealer's cards: {game.bot} (total = {game.calculate_total(game.bot)})")
+        user_total = game.calculate_total(game.user)
+        bot_total = game.calculate_total(game.bot)
+    print("\nFinal Results:")
+    print(f"Your hand: {game.user} (total = {user_total})")
+    print(f"Dealer's hand: {game.bot} (total = {bot_total})")
+
+    result = game.get_game_result()
+    if result == 'win':
+        print("You win!")
+        bet=2*bet
+    elif result == 'lose':
+        print("You lose!")
+        bet
+    else:
+        print("It's a tie!")
+    print(f"Your bet was: {bet}")
+    play_again = input("Play again? (y/n): ")
+    if play_again != 'y':
+        break
