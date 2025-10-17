@@ -8,6 +8,7 @@ class BlackjackGame:
         self.game_over = False
         self.player_stayed = False
 
+#womppp
 
     def generate_deck(self):
         suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
