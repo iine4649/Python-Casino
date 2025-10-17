@@ -9,6 +9,7 @@ class BlackjackGame:
         self.game_over = False
         self.player_stayed = False
 
+
     def generate_deck(self):
         """Generate a standard 52-card deck."""
         suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
@@ -49,6 +50,7 @@ class BlackjackGame:
         self.dealer_cards = [self.draw_card(), self.draw_card()]
         return self.player_cards, self.dealer_cards
 
+
     def hit_player(self):
         """Give player another card."""
         if not self.game_over:
@@ -57,6 +59,7 @@ class BlackjackGame:
                 self.game_over = True
             return self.player_cards
         return None
+
 
     def player_stay(self):
         """Player chooses to stay. Dealer plays."""
@@ -99,3 +102,4 @@ class BlackjackGame:
         """Format a card as a readable string."""
         rank, suit = card
         return f"{rank} of {suit}"
+
