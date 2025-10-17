@@ -96,39 +96,11 @@ class BlackjackGame:
         elif player_total < dealer_total:
             return "dealer_wins"
         else:
-<<<<<<< HEAD
             return 'tie'
-total=0
-bet=int(input("Enter your bet amount: "))
-while True:
-    game = BlackjackGame()
-    for i in range(2):
-        game.draw_card('user')
-        game.draw_card('bot')
-=======
-            return "tie"
->>>>>>> main
+
 
     def card_to_string(self, card):
         """Format a card as a readable string."""
         rank, suit = card
         return f"{rank} of {suit}"
 
-<<<<<<< HEAD
-    result = game.get_game_result()
-    if result == 'win':
-        print("You win!")
-        bet=2*bet
-    elif result == 'lose':
-        print("You lose!")
-        bet=-bet
-    else:
-        print("It's a tie!")
-    print(f"Your bet was: {bet}")
-    play_again = input("Play again? (y/n): ")
-    if play_again != 'y':
-        break
-total+=bet
-print(f"Your total balance is now: {total}")
-=======
->>>>>>> main
