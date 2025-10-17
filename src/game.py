@@ -115,6 +115,6 @@ class BlackjackGame:
         else:
             return 'tie'
 
-    def cart_to_string(self, cards):
+    def card_to_string(self, cards):
         #TODO make it so K,Q,J are 10 and A is 1
-    
+        pass
