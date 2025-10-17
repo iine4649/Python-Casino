@@ -211,7 +211,7 @@ body {
 
 <div class="game-container">
   <div class="game-table">
-    <!-- Bet Controls -->
+    
     <div class="bet-controls">
       <div class="bet-display">
         <div style="font-size: 14px; color: var(--muted); margin-bottom: 5px;">Bet Amount</div>
@@ -228,7 +228,7 @@ body {
       <div class="dealer-area">
         <div class="area-title">Dealer</div>
         <div class="cards" id="dealerCards">
-          <!-- Cards will be displayed here -->
+          
         </div>
         <div style="font-size: 14px; color: var(--muted);">Total: <span id="dealerTotal">0</span></div>
       </div>
@@ -236,7 +236,7 @@ body {
       <div class="player-area">
         <div class="area-title">Your Cards</div>
         <div class="cards" id="playerCards">
-          <!-- Cards will be displayed here -->
+          
         </div>
         <div style="font-size: 14px; color: var(--muted);">Total: <span id="playerTotal">0</span></div>
       </div>
@@ -374,7 +374,7 @@ async function stand() {
       updateCardsDisplay();
       updateBalance(result.new_balance);
       
-      // Show result
+      
       let message = '';
       switch(result.game_result) {
         case 'player_wins':
@@ -451,7 +451,7 @@ function updateGameStatus(message) {
 }
 
 function updateBalance(newBalance) {
-  // Update the balance in the navbar
+  
   const balanceElement = document.querySelector('.balance');
   const username = balanceElement.textContent.split('|')[0].trim();
   balanceElement.innerHTML = `${username} | Balance: $${newBalance.toFixed(2)} | <a href="/logout" style="color: var(--accent); text-decoration: none;">Logout</a>`;
@@ -463,7 +463,7 @@ function endGame() {
   document.getElementById('newGameBtn').style.display = 'inline-block';
 }
 
-// Initialize
+ 
 updateBetDisplay();
 </script>
 </body>

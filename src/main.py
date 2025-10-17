@@ -37,10 +37,6 @@ csrf = CSRFProtect(app)
 bcrypt = Bcrypt(app)
 active_games = {}
 
-# ------------------------------
-# User Management
-# ------------------------------
-
 def load_users():
     if not DATA_FILE.exists():
         DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -76,9 +72,7 @@ def save_users(users: dict) -> None:
             user_dicts[username] = user
     DATA_FILE.write_text(json.dumps(user_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
 
-# ------------------------------
-# Routes
-# ------------------------------
+
 
 @app.route("/")
 def login():

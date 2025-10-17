@@ -42,9 +42,9 @@
   "as": {
     "username": "as",
     "password": "$2b$12$YGUdDjgEC1Xwuegmufx4duiv2VZNIfZsN1M1zGA1jUA7vHChUSGRu",
-    "balance": 6900.0,
-    "money_won": 1600.0,
-    "money_lost": 3200.0,
+    "balance": 8100.0,
+    "money_won": 2800.0,
+    "money_lost": 3300.0,
     "games_played": 0
   }
 }
