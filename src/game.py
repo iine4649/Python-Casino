@@ -86,7 +86,8 @@ class BlackjackGame:
         elif player_total < dealer_total:
             return "dealer_wins"
         else:
-            return "tie"
+            return 'tie'
+
 
     def card_to_string(self, card):
         rank, suit = card
