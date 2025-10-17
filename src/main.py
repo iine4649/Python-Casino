@@ -107,7 +107,7 @@ def lobby():
     if user and isinstance(user, User):
         balance = user.balance
     else:
-        balance = 1000  # Default for guest or old format
+        balance = 1000 
     
     return render_template("lobby.html", username=user_id, balance=balance)
     

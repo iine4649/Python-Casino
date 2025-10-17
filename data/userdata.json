@@ -22,5 +22,21 @@
     "money_won": 0,
     "money_lost": 0,
     "games_played": 0
+  },
+  "sd": {
+    "username": "sd",
+    "password": "$2b$12$8mvl0bCZ3uQQsqmji7Pa..b8D1mWMGt/a/WWNRMr78fhxvnaw.2Hi",
+    "balance": 1010100.0,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  },
+  "qilok": {
+    "username": "qilok",
+    "password": "$2b$12$.51wvxZQhJHNsoziAkkiyOLB7M1lEbX5aXqxvL3USc2CrDE5P2X/m",
+    "balance": 10000.5,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
   }
 }

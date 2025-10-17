@@ -117,4 +117,4 @@ class BlackjackGame:
 
     def cart_to_string(self, cards):
         #TODO make it so K,Q,J are 10 and A is 1
-    
+        return None 
