@@ -8,7 +8,7 @@ class BlackjackGame:
         self.dealer_cards = []
         self.game_over = False
         self.player_stayed = False
-
+#womppp
     def generate_deck(self):
         """Generate a standard 52-card deck."""
         suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
