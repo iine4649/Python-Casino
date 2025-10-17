@@ -115,6 +115,10 @@ class BlackjackGame:
         else:
             return 'tie'
 
-    def card_to_string(self, cards):
-        #TODO make it so K,Q,J are 10 and A is 1
-        pass
+    def calculate_total(self, cards):
+        """Calculate total value of cards"""
+        return sum(cards)
+    
+    def card_to_string(self, card):
+        """Convert card number to string representation"""
+        return str(card)

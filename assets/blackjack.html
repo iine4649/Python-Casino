@@ -377,14 +377,11 @@ async function stand() {
       // Show result
       let message = '';
       switch(result.game_result) {
-        case 'player_wins':
+        case 'win':
           message = 'You win $' + result.bet + '!';
           break;
-        case 'dealer_wins':
+        case 'lose':
           message = 'You lose $' + result.bet;
-          break;
-        case 'dealer_bust':
-          message = 'Dealer busts! You win $' + result.bet + '!';
           break;
         case 'tie':
           message = 'Push! Your bet is returned.';
