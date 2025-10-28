@@ -30,13 +30,13 @@ class User:
 @classmethod
 def from_dict(cls, data):
     return cls(
-        username=data["username"],
-        password=data["password"],
-        balance=data.get("balance", 500),
-        money_won=data.get("money_won", 0),
-        money_lost=data.get("money_lost", 0),
-        games_played=data.get("games_played", 0),
-        history=data.get("history", [])
+        username = data["username"],
+        password = data["password"],
+        balance = data.get("balance", 500),
+        money_won = data.get("money_won", 0),
+        money_lost = data.get("money_lost", 0),
+        games_played = data.get("games_played", 0),
+        history = data.get("history", [])
     )
 
 def update_balance(self, games, result, amount):
