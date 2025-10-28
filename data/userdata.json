@@ -54,5 +54,13 @@
     "money_won": 0,
     "money_lost": 0,
     "games_played": 0
+  },
+  "kkkkk": {
+    "username": "kkkkk",
+    "password": "$2b$12$foUm1fBy0JJkBtNql/f0CeTY3IF2nupBGXLcE8UwFR85qK2SId1.m",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
   }
 }
