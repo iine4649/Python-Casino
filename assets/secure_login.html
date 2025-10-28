@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<title>Sign In</title>
 <style>
 :root {
   --bg: #0c0f14;
@@ -26,7 +26,9 @@ html, body {
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, sans-serif;
-  background: radial-gradient(1200px 800px at 20% 10%, rgba(138,43,226,.25), transparent 60%), radial-gradient(1000px 700px at 80% 90%, rgba(0,212,255,.2), transparent 60%), var(--bg);
+  background: radial-gradient(1200px 800px at 20% 10%, rgba(138,43,226,.25), transparent 60%), 
+              radial-gradient(1000px 700px at 80% 90%, rgba(0,212,255,.2), transparent 60%), 
+              var(--bg);
   color: var(--text);
 }
 
@@ -146,33 +148,6 @@ body {
 .link:hover {
   text-decoration: underline;
 }
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.08);
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.badge-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: conic-gradient(var(--accent), var(--accent-2));
-}
-
 .lang-row {
   display: flex;
   justify-content: flex-end;
@@ -192,109 +167,84 @@ body {
 </head>
 <body>
 <div class="container">
-<div class="card">
-<div class="logo">
+  <div class="card">
+    <div class="lang-row">
+      <select id="lang-select" class="lang-select" aria-label="Language">
+        <option value="en">English</option>
+        <option value="ja">Japanese</option>
+        <option value="zh">Chinese</option>
+        <option value="ko">Korean</option>
+        <option value="ru">Russian</option>
+        <option value="de">German</option>
+        <option value="es">Spanish</option>
+        <option value="la">Latin</option>
+      </select>
+    </div>
+    <h1 class="title" id="title-text">Sign in</h1>
+    <p class="subtitle" id="subtitle-text">Log in to your account to start playing.</p>
+    <form id="signin-form" class="form" action="#" method="post">
+      <label for="user-id" class="label" id="label-id">ID</label>
+      <input type="text" id="user-id" class="input" name="user_id" placeholder="Enter your ID" required>
 
+      <label for="password" class="label" id="label-password">Password</label>
+      <input type="password" id="password" class="input" name="password" placeholder="Enter your password" required>
+
+      <!-- Remember Me checkbox -->
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);">
+        <input type="checkbox" id="remember-me" style="width:16px;height:16px;"> Remember me
+      </label>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary" id="btn-signin">Sign In</button>
+        <button type="button" class="btn btn-secondary" id="btn-signup" onclick="window.location.href='/sign-up'">Sign Up</button>
+      </div>
+    </form>
+    <div class="footer"><span id="footer-prefix">Don’t have an account?</span> 
+      <a class="link" id="footer-link" href="/sign-up">Sign Up</a>
+    </div>
+  </div>
 </div>
-<div class="lang-row">
-<select id="lang-select" class="lang-select" aria-label="Language">
-<option value="en">English</option>
-<option value="ja">Japanese</option>
-<option value="zh">Chinese</option>
-<option value="ko">Korean</option>
-<option value="ru">Russian</option>
-<option value="de">German</option>
-<option value="es">Spanish</option>
-<option value="la">Latin</option>
-</select>
-</div>
-<h1 class="title" id="title-text">Sign in</h1>
-<p class="subtitle" id="subtitle-text">Log in to your account to start playing.</p>
-<form id="signin-form" class="form" action="#" method="post">
-<label for="user-id" class="label" id="label-id">ID</label>
-<input type="text" id="user-id" class="input" name="user_id" placeholder="Enter your ID" required>
-<label for="password" class="label" id="label-password">Password</label>
-<input type="password" id="password" class="input" name="password" placeholder="Enter your password" required>
-<div class="actions">
-<button type="submit" class="btn btn-primary" id="btn-signin">Sign In</button>
-<button type="button" class="btn btn-secondary" id="btn-signup" onclick="window.location.href='/sign-up'">Sign Up</button>
-</div>
-</form>
-<div class="footer"><span id="footer-prefix">Don’t have an account?</span> <a class="link" id="footer-link" href="/sign-up">Sign Up</a></div>
-</div>
-</div>
+
 <script>
-(function(){
-var select=document.getElementById('lang-select');
-var html=document.documentElement;
-var titleText=document.getElementById('title-text');
-var subtitleText=document.getElementById('subtitle-text');
-var labelId=document.getElementById('label-id');
-var labelPassword=document.getElementById('label-password');
-var inputId=document.getElementById('user-id');
-var inputPw=document.getElementById('password');
-var btnSignin=document.getElementById('btn-signin');
-var btnSignup=document.getElementById('btn-signup');
-var footerPrefix=document.getElementById('footer-prefix');
-var footerLink=document.getElementById('footer-link');
-var t={
-  en:{html:'en',title:'Sign in',sub:'Log in to your account to start playing.',id:'ID',idPh:'Enter your ID',pw:'Password',pwPh:'Enter your password',in:'Sign In',up:'Sign Up',foot:'Don\'t have an account?','footLink':'Sign Up'},
-  ja:{html:'ja',title:'サインイン',sub:'アカウントにログインしてゲームを始めましょう。',id:'ID',idPh:'IDを入力',pw:'パスワード',pwPh:'パスワードを入力',in:'サインイン',up:'新規登録',foot:'アカウントをお持ちでない場合は','footLink':'新規登録'},
-  zh:{html:'zh',title:'登录',sub:'登录您的账户开始游戏。',id:'账号',idPh:'输入账号',pw:'密码',pwPh:'输入密码',in:'登录',up:'注册',foot:'还没有账号？','footLink':'注册'},
-  ko:{html:'ko',title:'로그인',sub:'계정에 로그인하여 게임을 시작하세요.',id:'아이디',idPh:'아이디 입력',pw:'비밀번호',pwPh:'비밀번호 입력',in:'로그인',up:'회원가입',foot:'계정이 없으신가요?','footLink':'회원가입'},
-  ru:{html:'ru',title:'Вход',sub:'Войдите в аккаунт, чтобы начать играть.',id:'ID',idPh:'Введите ID',pw:'Пароль',pwPh:'Введите пароль',in:'Войти',up:'Регистрация',foot:'Нет аккаунта?','footLink':'Регистрация'},
-  de:{html:'de',title:'Anmelden',sub:'Melde dich an, um zu spielen.',id:'ID',idPh:'ID eingeben',pw:'Passwort',pwPh:'Passwort eingeben',in:'Anmelden',up:'Registrieren',foot:'Noch kein Konto?','footLink':'Registrieren'},
-  es:{html:'es',title:'Iniciar sesión',sub:'Inicia sesión para comenzar a jugar.',id:'ID',idPh:'Introduce tu ID',pw:'Contraseña',pwPh:'Introduce tu contraseña',in:'Iniciar sesión',up:'Registrarse',foot:'¿No tienes una cuenta?','footLink':'Regístrate'},
-  la:{html:'la',title:'Ingredere',sub:'In rationem ingredere ut ludere incipias.',id:'ID',idPh:'ID insere',pw:'Tessera',pwPh:'Tesseram insere',in:'Ingredere',up:'Adscribe',foot:'Rationem nondum habes?','footLink':'Adscribe'}
-};
-function apply(lang){
-  var d=t[lang]||t.en;
-  html.lang=d.html;
-  titleText.textContent=d.title;
-  subtitleText.textContent=d.sub;
-  labelId.textContent=d.id;
-  inputId.placeholder=d.idPh;
-  labelPassword.textContent=d.pw;
-  inputPw.placeholder=d.pwPh;
-  btnSignin.textContent=d.in;
-  btnSignup.textContent=d.up;
-  footerPrefix.textContent=d.foot;
-  footerLink.textContent=d.footLink;
-}
-select.addEventListener('change',function(){apply(this.value);});
-apply(select.value||'en');
-})();
+(function() {
+  var select = document.getElementById('lang-select');
+  var html = document.documentElement;
+  var titleText = document.getElementById('title-text');
+  var subtitleText = document.getElementById('subtitle-text');
+  var labelId = document.getElementById('label-id');
+  var labelPassword = document.getElementById('label-password');
+  var inputId = document.getElementById('user-id');
+  var inputPw = document.getElementById('password');
+  var btnSignin = document.getElementById('btn-signin');
+  var btnSignup = document.getElementById('btn-signup');
+  var footerPrefix = document.getElementById('footer-prefix');
+  var footerLink = document.getElementById('footer-link');
 
-// Form submission handling
-document.getElementById('signin-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  
-  const formData = new FormData(this);
-  const data = {
-    user_id: formData.get('user_id'),
-    password: formData.get('password')
-  };
-  
-  try {
-    const response = await fetch('/api/sign-in', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data)
-    });
-    
-    const result = await response.json();
-    
-    if (result.ok) {
-      window.location.href = '/lobby';
-    } else {
-      alert('Login failed: ' + result.error);
+  var t = {
+    en: {
+      html: 'en',
+      title: 'Sign in',
+      sub: 'Log in to your account to start playing.',
+      id: 'ID',
+      idPh: 'Enter your ID',
+      pw: 'Password',
+      pwPh: 'Enter your password',
+      in: 'Sign In',
+      up: 'Sign Up',
+      foot: 'Don\'t have an account?',
+      footLink: 'Sign Up'
     }
-  } catch (error) {
-    alert('Login failed: ' + error.message);
-  }
-});
-</script>
-</body>
-</html>
+  };
+
+  html.lang = t.en.html;
+  titleText.textContent = t.en.title;
+  subtitleText.textContent = t.en.sub;
+  labelId.textContent = t.en.id;
+  inputId.placeholder = t.en.idPh;
+  labelPassword.textContent = t.en.pw;
+  inputPw.placeholder = t.en.pwPh;
+  btnSignin.textContent = t.en.in;
+  btnSignup.textContent = t.en.up;
+  footerPrefix.textContent = t.en.foot;
+  footerLink.textContent = t.en.footLink;
+})();
