@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from datetime import datetime
+import json
 
 @dataclass
 class User:
@@ -24,13 +26,42 @@ class User:
             "games_played": self.games_played
         }
 
-    @staticmethod
-    def from_dict(d):
-        return User(
-            username=d["username"],
-            password=d["password"],
-            balance=d.get("balance", 500),
-            money_won=d.get("money_won", 0),
-            money_lost=d.get("money_lost", 0),
-            games_played=d.get("games_played", 0)
-        )
+
+@classmethod
+def from_dict(cls, data):
+    return cls(
+        username=data["username"],
+        password=data["password"],
+        balance=data.get("balance", 500),
+        money_won=data.get("money_won", 0),
+        money_lost=data.get("money_lost", 0),
+        games_played=data.get("games_played", 0),
+        history=data.get("history", [])
+    )
+
+def update_balance(self, games, result, amount):
+    if result == "win":
+        self.balance += amount
+        self.money_won += amount
+    else:
+        self.balance -= amount
+        self.money_lost += amount
+    self.games_played += 1
+
+    self.history.append({
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), #idk if its necessary to enter allat
+        "game": games,
+        "result": result,
+        "amount": amount,
+        "balance now": self.balance
+    })
+
+ def to_file(self, path):
+        with open(path, "w") as f:
+            json.dump(self.to_dict(), f, indent=4)
+
+    @classmethod
+    def from_file(cls, path):
+        with open(path, "r") as f:
+            data = json.load(f)
+        return cls.from_dict(data)

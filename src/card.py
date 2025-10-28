@@ -1,51 +1,40 @@
 import copy
 import random
-import game
 
-# standard card combinations
 cards = ["2", "3", "4", "5", "6", "7", "8", "9", "10",
-         "Jack", "Queen ", "King", "Ace"]
-card_color = ["Red", "Black"]
-card_suits = ["Club", "Diamond", "Heart", "Spades"]
-suit_colors = {
-    "Hearts": "Red",
-    "Diamonds": "Red",
-    "Clubs": "Black",
-    "Spades": "Black"
-}
+         "Jack", "Queen", "King", "Ace"]
 
-# card dimensions *make sure that it is in sync with UI*
-width = 300
-height = 450
+card_suits = ["Clubs", "Diamonds", "Hearts", "Spades"]
 
 class Card:
-    def __init__(self):(self, cards, card_types, card_color):
-        self.cards = cards
-        self.card_types = card_type
-        self.card_color = card_color
-    def get_value(self):
-        if self.cards = ["King", "Queen", "Jack"]:
-            return 10
-        elif self.cards == "Ace"
-            return.random(1, 11)
-        else:
-            return int(self.card_rank)
-    def __str__(self):
-        return f"{self.cards} or {self.type}"
+    def __init__(self, rank, suit):
+        self.rank = rank
+        self.suit = suit
 
-# deck generation
+    def get_value(self):
+        if self.rank in ["King", "Queen", "Jack"]:
+            return 10
+        elif self.rank == "Ace":
+            return 11  # initially; can be adjusted to 1 if needed
+        else:
+            return int(self.rank)
+
+    def __str__(self):
+        return f"{self.rank} of {self.suit}"
+
 def card_deck():
     deck = []
     for suit in card_suits:
-        for card in cards:
-            card = Card(card, suit)
+        for rank in cards:
+            deck.append(Card(rank, suit))
     return deck
 
-def shuffle_cards(deck_count = 5):
+def shuffle_cards(deck_count=1):
     reg_deck = card_deck()
-    full_deck = copy.deepcopy(reg_deck * full_deck)
+    full_deck = copy.deepcopy(reg_deck * deck_count)
     random.shuffle(full_deck)
     return full_deck
+
 
 
 
