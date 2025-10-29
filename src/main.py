@@ -76,7 +76,6 @@ def save_users(users: dict) -> None:
             user_dicts[username] = user
     DATA_FILE.write_text(json.dumps(user_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
 
-
 # ------------------------------
 # Routes
 # ------------------------------
@@ -90,6 +89,26 @@ def login():
 @app.route("/sign-up")
 def sign_up():
     return render_template("secure_sign_up.html")
+
+@app.route("/sign-in", methods=["POST"])
+@csrf.exempt
+def sign_in_form():
+    """Handle HTML form-based sign-in."""
+    user_id = (request.form.get("user_id") or "").strip().lower()
+    password = request.form.get("password") or ""
+
+    users = {k.lower(): v for k, v in load_users().items()}
+    user = users.get(user_id)
+
+    if not user:
+        return render_template("secure_login.html", error="Invalid username or password")
+
+    password_hash = user.password if isinstance(user, User) else user.get("password_hash", "")
+    if not bcrypt.check_password_hash(password_hash, password):
+        return render_template("secure_login.html", error="Invalid username or password")
+
+    session['user_id'] = user_id
+    return redirect(url_for('lobby'))
 
 @app.route("/lobby")
 def lobby():
@@ -118,7 +137,6 @@ def blackjack():
     balance = user.balance if user else 1000
     return render_template("blackjack.html", username=user_id, balance=balance)
 
-
 # ------------------------------
 # Blackjack API
 # ------------------------------
@@ -130,7 +148,6 @@ def api_blackjack_deal():
     if not user_id:
         return jsonify({"ok": False, "error": "Not logged in"}), 401
 
-    # ❌ Prevent multiple rounds
     if user_id in active_games:
         return jsonify({"ok": False, "error": "You already have an active round"}), 400
 
@@ -161,7 +178,6 @@ def api_blackjack_deal():
         "new_balance": user.balance
     })
 
-
 @app.post("/api/blackjack/hit")
 @csrf.exempt
 def api_blackjack_hit():
@@ -177,7 +193,6 @@ def api_blackjack_hit():
 
     users = load_users()
     user = users.get(user_id)
-
     result = None
     game_over = False
 
@@ -210,7 +225,6 @@ def api_blackjack_hit():
         "game_over": game_over,
         "new_balance": user.balance
     })
-
 
 @app.post("/api/blackjack/stand")
 @csrf.exempt
@@ -254,7 +268,6 @@ def api_blackjack_stand():
         "new_balance": user.balance
     })
 
-
 # ------------------------------
 # Deposit System
 # ------------------------------
@@ -278,7 +291,6 @@ def api_deposit():
         amount = float(amount)
         if amount <= 0:
             return jsonify({"ok": False, "error": "Amount must be positive"}), 400
-        # 💰 Cap deposit at $1B
         if amount > 1_000_000_000:
             return jsonify({"ok": False, "error": "Deposit exceeds allowed limit"}), 400
     except (ValueError, TypeError):
@@ -297,7 +309,6 @@ def api_deposit():
         "new_balance": user.balance,
         "deposited": amount
     })
-
 
 # ------------------------------
 # Roulette
@@ -318,7 +329,6 @@ def roulette_spin():
     if not user_id:
         return jsonify({'ok': False, 'error': 'Not logged in'}), 403
 
-    # Prevent double-bets
     if user_id in active_games:
         return jsonify({'ok': False, 'error': 'Finish your active round first'}), 400
 
@@ -373,7 +383,6 @@ def roulette_spin():
         'new_balance': user.balance
     })
 
-
 @app.post("/api/sign-up")
 @csrf.exempt
 def api_sign_up():
@@ -397,7 +406,6 @@ def api_sign_up():
     save_users(users)
     return jsonify({"ok": True}), 201
 
-
 @app.post("/api/sign-in")
 @csrf.exempt
 def api_sign_in():
@@ -417,12 +425,10 @@ def api_sign_in():
     session['user_id'] = user_id
     return jsonify({"ok": True})
 
-
 @app.route("/logout")
 def logout():
     session.pop('user_id', None)
     return redirect(url_for('login'))
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
