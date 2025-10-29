@@ -7,6 +7,8 @@ import json, os, random
 from pathlib import Path
 from user import User
 from game import BlackjackGame
+from typing import List
+from slotmachine import SlotMachineGame
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_FILE = BASE_DIR / "data" / "userdata.json"
@@ -36,6 +38,7 @@ Talisman(app,
 csrf = CSRFProtect(app)
 bcrypt = Bcrypt(app)
 active_games = {}
+
 
 def load_users():
     if not DATA_FILE.exists():
@@ -337,6 +340,63 @@ def roulette_spin():
         'color': color,
         'message': message,
         'new_balance': user.balance
+    })
+
+
+@app.route("/slotmachine")
+def slotmachine():
+    user_id = session.get('user_id', 'Guest')
+    users = load_users()
+    user = users.get(user_id)
+    balance = user.balance if user else 1000
+    return render_template("slotmachine.html", username=user_id, balance=balance)
+
+
+@app.post("/api/slot/spin")
+@csrf.exempt
+def api_slot_spin():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"ok": False, "error": "Not logged in"}), 401
+
+    data = request.get_json(silent=True) or {}
+    try:
+        bet_amount = float(data.get("bet_amount", 100))
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "error": "Invalid bet amount"}), 400
+
+    users = load_users()
+    user = users.get(user_id)
+    if not user or not isinstance(user, User):
+        return jsonify({"ok": False, "error": "User not found"}), 404
+
+    if bet_amount <= 0:
+        return jsonify({"ok": False, "error": "Bet must be positive"}), 400
+
+    if user.balance < bet_amount:
+        return jsonify({"ok": False, "error": "Insufficient balance"}), 400
+
+    # Deduct bet upfront
+    user.balance -= bet_amount
+
+    # Use SlotMachineGame for game logic
+    game = SlotMachineGame()
+    result = game.spin(bet_amount)
+
+    if result["multiplier"] > 0:
+        user.balance += result["winnings"]
+        user.money_won += result["profit"]
+    else:
+        user.money_lost += bet_amount
+
+    save_users(users)
+
+    return jsonify({
+        "ok": True,
+        "reels": result["reels"],
+        "multiplier": result["multiplier"],
+        "message": result["message"],
+        "new_balance": user.balance,
     })
 
 

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slot Machine - Python Casino</title>
+<style>
+:root {
+  --bg: #0c0f14;
+  --card: #151a22;
+  --accent: #00d4ff;
+  --accent-2: #8a2be2;
+  --text: #e8eef6;
+  --muted: #9aa7b2;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  background: radial-gradient(1200px 800px at 20% 10%, rgba(138,43,226,.25), transparent 60%), radial-gradient(1000px 700px at 80% 90%, rgba(0,212,255,.2), transparent 60%), var(--bg);
+  color: var(--text);
+}
+
+.navbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 40px; background: rgba(255,255,255,.03);
+  backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.logo { font-size: 22px; font-weight: 600; color: var(--accent); }
+.balance { font-size: 16px; color: var(--muted); }
+.back-button { position: absolute; top: 20px; left: 20px; }
+
+.container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; }
+.machine {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px; backdrop-filter: blur(6px); box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  padding: 30px; width: 100%; max-width: 720px;
+}
+.reels { display: flex; justify-content: center; gap: 20px; margin: 20px 0 10px; }
+.reel {
+  width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;
+  font-size: 52px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: 14px;
+}
+.controls { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.bet-row { display: flex; gap: 12px; align-items: center; }
+.bet-amount { font-size: 22px; font-weight: 700; color: var(--accent); background: rgba(255,255,255,.06); padding: 8px 16px; border-radius: 10px; min-width: 120px; text-align: center; }
+.btn { padding: 10px 18px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; color: #0a0f14; transition: transform .06s ease, box-shadow .2s ease; }
+.btn:hover { transform: translateY(-2px); }
+.btn-primary { background: linear-gradient(135deg, var(--accent), #4de2ff); box-shadow: 0 8px 20px rgba(0,212,255,.35); }
+.btn-secondary { background: linear-gradient(135deg, var(--accent-2), #b07cff); box-shadow: 0 8px 20px rgba(138,43,226,.35); color: #fff; }
+.result { margin-top: 14px; font-size: 18px; font-weight: 600; }
+.payouts { margin-top: 16px; color: var(--muted); font-size: 14px; }
+.payouts table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.payouts th, .payouts td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,.06); text-align: left; }
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="logo">Slot Machine</div>
+  <div class="balance">Welcome, {{ username }} | Balance: ${{ "%.2f"|format(balance) }} | <a href="/logout" style="color: var(--accent); text-decoration: none;">Logout</a></div>
+</nav>
+
+<div class="back-button">
+  <button class="btn btn-secondary" onclick="window.location.href='/lobby'">← Back to Lobby</button>
+</div>
+
+<div class="container">
+  <div class="machine">
+    <h1>Spin the Reels</h1>
+    <div class="reels">
+      <div class="reel" id="reel1">🍒</div>
+      <div class="reel" id="reel2">🍋</div>
+      <div class="reel" id="reel3">🔔</div>
+    </div>
+
+    <div class="controls">
+      <div class="bet-row">
+        <span>Bet</span>
+        <div class="bet-amount" id="betAmount">$100</div>
+        <button class="btn btn-secondary" onclick="changeBet(-100)">-100</button>
+        <button class="btn btn-secondary" onclick="changeBet(100)">+100</button>
+      </div>
+      <button class="btn btn-primary" id="spinBtn" onclick="spin()">SPIN</button>
+    </div>
+
+    <div class="result" id="resultDisplay"></div>
+
+    <div class="payouts">
+      <div>Payouts (three of a kind)</div>
+      <table>
+        <tr><th>💎</th><td>x100</td></tr>
+        <tr><th>7️⃣</th><td>x50</td></tr>
+        <tr><th>⭐</th><td>x15</td></tr>
+        <tr><th>🔔</th><td>x10</td></tr>
+        <tr><th>🍒</th><td>x5</td></tr>
+        <tr><th>🍋</th><td>x4</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentBet = 100;
+let spinning = false;
+const MIN_BET = 100;
+
+function changeBet(amount) {
+  if (spinning) return;
+  const next = Math.max(MIN_BET, currentBet + amount);
+  currentBet = next;
+  document.getElementById('betAmount').textContent = `$${currentBet}`;
+}
+
+function animateSpinStart() {
+  const symbols = ['🍒','🍋','🔔','⭐','7️⃣','💎'];
+  const reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
+  const timers = [];
+  for (let i = 0; i < 3; i++) {
+    let idx = 0;
+    timers[i] = setInterval(() => {
+      reels[i].textContent = symbols[idx % symbols.length];
+      idx++;
+    }, 80 + i * 30);
+  }
+  return timers;
+}
+
+function animateSpinStop(timers, finalSymbols) {
+  const delays = [0, 200, 400];
+  timers.forEach((t, i) => setTimeout(() => {
+    clearInterval(t);
+    document.getElementById(`reel${i+1}`).textContent = finalSymbols[i];
+  }, delays[i]));
+}
+
+async function spin() {
+  if (spinning) return;
+  spinning = true;
+  document.getElementById('resultDisplay').textContent = 'Spinning...';
+  const timers = animateSpinStart();
+  document.getElementById('spinBtn').disabled = true;
+
+  try {
+    const response = await fetch('/api/slot/spin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bet_amount: currentBet })
+    });
+    const result = await response.json();
+    if (!result.ok) throw new Error(result.error || 'Spin failed');
+
+    setTimeout(() => {
+      animateSpinStop(timers, result.reels);
+      setTimeout(() => {
+        document.getElementById('resultDisplay').textContent = result.message;
+        updateBalance(result.new_balance);
+        spinning = false;
+        document.getElementById('spinBtn').disabled = false;
+      }, 500);
+    }, 900);
+  } catch (err) {
+    timers.forEach(clearInterval);
+    document.getElementById('resultDisplay').textContent = 'Error: ' + err.message;
+    spinning = false;
+    document.getElementById('spinBtn').disabled = false;
+  }
+}
+
+function updateBalance(newBalance) {
+  const balanceEl = document.querySelector('.balance');
+  const username = balanceEl.textContent.split('|')[0].trim();
+  balanceEl.innerHTML = `${username} | Balance: $${Number(newBalance).toFixed(2)} | <a href="/logout" style="color: var(--accent); text-decoration: none;">Logout</a>`;
+}
+</script>
+</body>
+</html>
+
