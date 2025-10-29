@@ -34,9 +34,65 @@
   "qilok": {
     "username": "qilok",
     "password": "$2b$12$WA5XPmoD9HMHb5oe6yNAYukPyz03IMSDXOH.2aHKYxODLSFnZemNC",
-    "balance": 50.0,
-    "money_won": 6700,
-    "money_lost": 6800,
+    "balance": 5600.0,
+    "money_won": 12300.0,
+    "money_lost": 12600.0,
     "games_played": 135
+  },
+  "as": {
+    "username": "as",
+    "password": "$2b$12$YGUdDjgEC1Xwuegmufx4duiv2VZNIfZsN1M1zGA1jUA7vHChUSGRu",
+    "balance": 8100.0,
+    "money_won": 2800.0,
+    "money_lost": 3300.0,
+    "games_played": 0
+  },
+  "qq": {
+    "username": "qq",
+    "password": "$2b$12$tFFUWX7m5E30AxG5A9s.j.V.eLUbzwCPT3HVebIOaZlFUKwYgZm9m",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  },
+  "kkkkk": {
+    "username": "kkkkk",
+    "password": "$2b$12$foUm1fBy0JJkBtNql/f0CeTY3IF2nupBGXLcE8UwFR85qK2SId1.m",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  },
+  "111": {
+    "username": "111",
+    "password": "$2b$12$3AMKeZi21aFAG3.hJC4Y3uUZReMyquxsxTWorb1EwF9fzQh/1hJ6q",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  },
+  "1": {
+    "username": "1",
+    "password": "$2b$12$lxuPhgVARDrIAIKz4XrSgO0x878P3CzXHSlZBRuL56wXOondZY3bS",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  },
+  "nn": {
+    "username": "nn",
+    "password": "$2b$12$3KemITBqxXQ0KWFVJSpvo.G2mJCHTOXEFkNXTTPl1vz6r15czrXz6",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  },
+  "n": {
+    "username": "n",
+    "password": "$2b$12$Qe3Tj7FLEN9onopAZscXa.x2fc7ue6GZ5WA1STFoRJMdm3nGkBtZK",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
   }
 }
