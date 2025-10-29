@@ -3,7 +3,7 @@ from flask_wtf import CSRFProtect
 from flask_bcrypt import Bcrypt
 from flask_talisman import Talisman
 from roulette import RouletteGame
-import json, os, random
+import json, os
 from pathlib import Path
 from user import User
 from game import BlackjackGame
@@ -377,25 +377,33 @@ def roulette_spin():
 @app.post("/api/sign-up")
 @csrf.exempt
 def api_sign_up():
+    print("Request headers:", dict(request.headers))
+    print("Raw data:", request.data)
     data = request.get_json(silent=True) or request.form.to_dict()
+    print("Parsed data:", data)
     user_id = (data.get("user_id") or "").strip().lower()
     password = data.get("password") or ""
     password_confirm = data.get("password_confirm") or data.get("password2") or ""
-
     if not user_id or not password:
-        return jsonify({"ok": False, "error": "Missing credentials"}), 400
+        return jsonify({"ok": False, "error": "Missing username or password"}), 400
+
     if password != password_confirm:
         return jsonify({"ok": False, "error": "Passwords do not match"}), 400
 
     users = load_users()
+
     if user_id in (u.lower() for u in users.keys()):
         return jsonify({"ok": False, "error": "User already exists"}), 409
 
-    hashed = bcrypt.generate_password_hash(password).decode("utf-8")
-    new_user = User(username=user_id, password=hashed, balance=10000)
+    hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+    new_user = User(username=user_id, password=hashed_password, balance=10000)
     users[user_id] = new_user
     save_users(users)
+
+    session['user_id'] = user_id
+
     return jsonify({"ok": True}), 201
+
 
 
 @app.post("/api/sign-in")

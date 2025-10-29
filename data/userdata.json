@@ -62,5 +62,37 @@
     "money_won": 0,
     "money_lost": 0,
     "games_played": 0
+  },
+  "111": {
+    "username": "111",
+    "password": "$2b$12$3AMKeZi21aFAG3.hJC4Y3uUZReMyquxsxTWorb1EwF9fzQh/1hJ6q",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  },
+  "1": {
+    "username": "1",
+    "password": "$2b$12$lxuPhgVARDrIAIKz4XrSgO0x878P3CzXHSlZBRuL56wXOondZY3bS",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  },
+  "nn": {
+    "username": "nn",
+    "password": "$2b$12$3KemITBqxXQ0KWFVJSpvo.G2mJCHTOXEFkNXTTPl1vz6r15czrXz6",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  },
+  "n": {
+    "username": "n",
+    "password": "$2b$12$Qe3Tj7FLEN9onopAZscXa.x2fc7ue6GZ5WA1STFoRJMdm3nGkBtZK",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
   }
 }
