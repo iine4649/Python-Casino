@@ -374,10 +374,6 @@ def roulette_spin():
     })
 
 
-# ------------------------------
-# Authentication
-# ------------------------------
-
 @app.post("/api/sign-up")
 @csrf.exempt
 def api_sign_up():
