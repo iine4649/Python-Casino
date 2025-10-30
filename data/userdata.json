@@ -90,6 +90,22 @@
   "n": {
     "username": "n",
     "password": "$2b$12$Qe3Tj7FLEN9onopAZscXa.x2fc7ue6GZ5WA1STFoRJMdm3nGkBtZK",
+    "balance": 9200.0,
+    "money_won": 400.0,
+    "money_lost": 1200.0,
+    "games_played": 0
+  },
+  "9": {
+    "username": "9",
+    "password": "$2b$12$y55xvjIHzPykHT8i3VE6aup7YprsAC8bJ79hTsJCi2yMGRkiJcEWC",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0
+  },
+  "11": {
+    "username": "11",
+    "password": "$2b$12$M14p5NeVovNE5PTnF6mH3./BOnUF2NUFSNX6cBod8HEbTVQ.gjRee",
     "balance": 10000,
     "money_won": 0,
     "money_lost": 0,
