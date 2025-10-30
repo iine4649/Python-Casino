@@ -17,7 +17,7 @@ class SlotMachineGame:
         }
 
     def spin(self, bet_amount: float) -> dict:
-        """Simulate a slot machine spin — returns game result dict."""
+
         reels: List[str] = random.choices(self.symbols, weights=self.weights, k=3)
         
         multiplier = 0
