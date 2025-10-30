@@ -88,7 +88,7 @@ def login():
 
 @app.route("/sign-up")
 def sign_up():
-    return render_template["secure_sign_up.html"]
+    return render_template("secure_sign_up.html")
 
 @app.route("/lobby")
 def lobby():
