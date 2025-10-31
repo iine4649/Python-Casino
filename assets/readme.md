@@ -4,12 +4,16 @@ A Flask-based multi-game casino web app for Advanced Topics in Computer Science 
 
 ## Features
 - User registration & login with hashed passwords.
+- Automatic login function
 - Persistent JSON-based data storage.
 - Deposit funds system.
+- Bet system 
 - Playable Blackjack game vs. automated dealer.
+- Playable Roulette game of combinations of 3 colors and 36 numbers 
+- Playable slot machine with three rows 
 - Dashboard showing balance and stats.
 - Secure routes with Flask-WTF and Flask-Talisman.
-- Roulette.
+
 
 ## Setup
 1. Clone this repo:
@@ -32,10 +36,13 @@ A Flask-based multi-game casino web app for Advanced Topics in Computer Science 
 Python-Casino/
 ├── assets/         # HTML templates & static CSS
 ├── data/           # JSON data (user balances, etc.)
-├── main.py         # Flask entry point
-├── user.py         # User model
-├── utils.py        # JSON helpers
-└── game.py         # Blackjack logic
+├── src 
+   ├── main.py         # Flask entry point
+   ├── roulette.py     # Roulette functions 
+   ├── slotmachine.py  # Slotmachine functions  
+   ├── user.py         # User model
+   ├── utils.py        # JSON helpers
+   └── game.py         # Blackjack functions 
 ```
 
 © 2025 CMP521 Python Casino Team
