@@ -6,10 +6,10 @@ import json
 class User:
     username: str
     password: str
-    balance: int = 500
-    money_won: int = 0
-    money_lost: int = 0
-    games_played: int = 0
+    balance: = 500
+    money_won: = 0
+    money_lost: = 0
+    games_played: = 0
 
     def deposit(self, amount):
         if amount <= 0:
