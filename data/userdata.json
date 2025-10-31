@@ -3,9 +3,9 @@
     "username": "1",
     "password": "$2b$12$BdL/kwwWF7US7srUAIl85uFZFTLiP6.HRI9C7peI4Gn3uBEx5.H5i",
     "nickname": "111",
-    "balance": 9700.0,
-    "money_won": 100.0,
-    "money_lost": 400.0,
+    "balance": 10300.0,
+    "money_won": 1300.0,
+    "money_lost": 1000.0,
     "games_played": 0,
     "history": [
       {
@@ -37,6 +37,24 @@
         "game": "blackjack",
         "result": "win",
         "amount": 100.0
+      },
+      {
+        "timestamp": "2025-10-31 16:18:27",
+        "game": "blackjack",
+        "result": "tie",
+        "amount": 0
+      },
+      {
+        "timestamp": "2025-10-31 16:18:32",
+        "game": "blackjack",
+        "result": "win",
+        "amount": 600.0
+      },
+      {
+        "timestamp": "2025-10-31 16:18:39",
+        "game": "blackjack",
+        "result": "win",
+        "amount": 600.0
       }
     ]
   }

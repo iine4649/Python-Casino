@@ -6,8 +6,7 @@ from roulette import RouletteGame
 import json, os
 from pathlib import Path
 from user import User
-from game import BlackjackGame
-from typing import List
+from blackjack import BlackjackGame
 from slotmachine import SlotMachineGame
 from datetime import datetime
 
