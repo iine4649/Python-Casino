@@ -1,4 +1,3 @@
-# roulette.py
 import random
 
 class RouletteGame:

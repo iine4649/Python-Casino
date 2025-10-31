@@ -3,10 +3,12 @@ from flask_wtf import CSRFProtect
 from flask_bcrypt import Bcrypt
 from flask_talisman import Talisman
 from roulette import RouletteGame
-import json, os, random
+import json, os
 from pathlib import Path
 from user import User
 from game import BlackjackGame
+from typing import List
+from slotmachine import SlotMachineGame
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_FILE = BASE_DIR / "data" / "userdata.json"
@@ -37,9 +39,6 @@ csrf = CSRFProtect(app)
 bcrypt = Bcrypt(app)
 active_games = {}
 
-# ------------------------------
-# User Management
-# ------------------------------
 
 def load_users():
     if not DATA_FILE.exists():
@@ -75,6 +74,7 @@ def save_users(users: dict) -> None:
         else:
             user_dicts[username] = user
     DATA_FILE.write_text(json.dumps(user_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
+
 
 # ------------------------------
 # Routes
@@ -117,10 +117,186 @@ def blackjack():
     balance = user.balance if user else 1000
     return render_template("blackjack.html", username=user_id, balance=balance)
 
+
+# ------------------------------
+# Blackjack API
+# ------------------------------
+
+@app.post("/api/blackjack/deal")
+@csrf.exempt
+def api_blackjack_deal():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"ok": False, "error": "Not logged in"}), 401
+
+    # ❌ Prevent multiple rounds
+    if user_id in active_games:
+        return jsonify({"ok": False, "error": "You already have an active round"}), 400
+
+    data = request.get_json(silent=True) or {}
+    bet_amount = float(data.get("bet_amount", 100))
+
+    users = load_users()
+    user = users.get(user_id)
+    if not user or not isinstance(user, User):
+        return jsonify({"ok": False, "error": "User not found"}), 404
+
+    if user.balance < bet_amount:
+        return jsonify({"ok": False, "error": "Insufficient balance"}), 400
+
+    game = BlackjackGame()
+    game.deal_initial_cards()
+    active_games[user_id] = {"game": game, "bet": bet_amount}
+
+    user.balance -= bet_amount
+    save_users(users)
+
+    return jsonify({
+        "ok": True,
+        "player_cards": [game.card_to_string(c) for c in game.player_cards],
+        "dealer_cards": [game.card_to_string(c) if i > 0 else "?" for i, c in enumerate(game.dealer_cards)],
+        "player_total": game.get_player_total(),
+        "dealer_total": "?",
+        "new_balance": user.balance
+    })
+
+
+@app.post("/api/blackjack/hit")
+@csrf.exempt
+def api_blackjack_hit():
+    user_id = session.get('user_id')
+    if not user_id or user_id not in active_games:
+        return jsonify({"ok": False, "error": "No active game"}), 400
+
+    game = active_games[user_id]["game"]
+    bet = active_games[user_id]["bet"]
+
+    game.hit_player()
+    player_total = game.get_player_total()
+
+    users = load_users()
+    user = users.get(user_id)
+
+    result = None
+    game_over = False
+
+    if player_total > 21:
+        user.money_lost += bet
+        save_users(users)
+        del active_games[user_id]
+        result = "bust"
+        game_over = True
+
+        return jsonify({
+            "ok": True,
+            "player_cards": [game.card_to_string(c) for c in game.player_cards],
+            "dealer_cards": [game.card_to_string(c) for c in game.dealer_cards],
+            "player_total": player_total,
+            "dealer_total": game.get_dealer_total(),
+            "result": result,
+            "game_over": game_over,
+            "new_balance": user.balance
+        })
+
+    save_users(users)
+    return jsonify({
+        "ok": True,
+        "player_cards": [game.card_to_string(c) for c in game.player_cards],
+        "dealer_cards": [game.card_to_string(c) if i > 0 else "?" for i, c in enumerate(game.dealer_cards)],
+        "player_total": player_total,
+        "dealer_total": "?",
+        "result": result,
+        "game_over": game_over,
+        "new_balance": user.balance
+    })
+
+
+@app.post("/api/blackjack/stand")
+@csrf.exempt
+def api_blackjack_stand():
+    user_id = session.get('user_id')
+    if not user_id or user_id not in active_games:
+        return jsonify({"ok": False, "error": "No active game"}), 400
+
+    game = active_games[user_id]["game"]
+    bet = active_games[user_id]["bet"]
+
+    game.player_stay()
+    dealer_total = game.get_dealer_total()
+    player_total = game.get_player_total()
+
+    users = load_users()
+    user = users.get(user_id)
+
+    result = game.get_game_result()
+    if result in ["player_wins", "win"]:
+        user.balance += bet * 2
+        user.money_won += bet
+    elif result == "tie":
+        user.balance += bet
+    else:
+        user.money_lost += bet
+
+    save_users(users)
+    del active_games[user_id]
+
+    return jsonify({
+        "ok": True,
+        "player_cards": [game.card_to_string(c) for c in game.player_cards],
+        "dealer_cards": [game.card_to_string(c) for c in game.dealer_cards],
+        "player_total": player_total,
+        "dealer_total": dealer_total,
+        "result": result,
+        "game_result": result,
+        "bet": bet,
+        "game_over": True,
+        "new_balance": user.balance
+    })
+
+
+# ------------------------------
+# Deposit System
+# ------------------------------
+
 @app.route("/deposit")
 def deposit():
     user_id = session.get('user_id', 'Guest')
     return render_template("deposit.html", username=user_id)
+
+@app.post("/api/deposit")
+@csrf.exempt
+def api_deposit():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"ok": False, "error": "Not logged in"}), 401
+
+    data = request.get_json(silent=True) or {}
+    amount = data.get("amount")
+
+    try:
+        amount = float(amount)
+        if amount <= 0:
+            return jsonify({"ok": False, "error": "Amount must be positive"}), 400
+        # 💰 Cap deposit at $1B
+        if amount > 1_000_000_000:
+            return jsonify({"ok": False, "error": "Deposit exceeds allowed limit"}), 400
+    except (ValueError, TypeError):
+        return jsonify({"ok": False, "error": "Invalid amount"}), 400
+
+    users = load_users()
+    user = users.get(user_id)
+    if not user or not isinstance(user, User):
+        return jsonify({"ok": False, "error": "User not found"}), 404
+
+    user.deposit(amount)
+    save_users(users)
+
+    return jsonify({
+        "ok": True,
+        "new_balance": user.balance,
+        "deposited": amount
+    })
+
 
 # ------------------------------
 # Blackjack
@@ -296,9 +472,13 @@ def roulette_spin():
     if not user_id:
         return jsonify({'ok': False, 'error': 'Not logged in'}), 403
 
+    # Prevent double-bets
+    if user_id in active_games:
+        return jsonify({'ok': False, 'error': 'Finish your active round first'}), 400
+
     data = request.get_json(silent=True) or {}
-    bet_color = data.get('bet_color')   # red, black, green, or None
-    bet_number = data.get('bet_number') # 0–36 or None
+    bet_color = data.get('bet_color')
+    bet_number = data.get('bet_number')
     bet_amount = int(data.get('bet_amount', 100))
 
     users = load_users()
@@ -314,13 +494,11 @@ def roulette_spin():
     payout = 0
     win_type = None
 
-    # Color bet
     if bet_color == color:
         payout = bet_amount * (14 if color == "green" else 2)
         win = True
         win_type = "color"
 
-    # Number bet
     if bet_number is not None:
         try:
             bet_number = int(bet_number)
@@ -339,6 +517,7 @@ def roulette_spin():
         message = f"You lost ${bet_amount}."
 
     save_users(users)
+    active_games.pop(user_id, None)
 
     return jsonify({
         'ok': True,
@@ -348,53 +527,121 @@ def roulette_spin():
         'new_balance': user.balance
     })
 
-# ------------------------------
-# Auth API
-# ------------------------------
+
+@app.route("/slotmachine")
+def slotmachine():
+    user_id = session.get('user_id', 'Guest')
+    users = load_users()
+    user = users.get(user_id)
+    balance = user.balance if user else 1000
+    return render_template("slotmachine.html", username=user_id, balance=balance)
+
+
+@app.post("/api/slot/spin")
+@csrf.exempt
+def api_slot_spin():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"ok": False, "error": "Not logged in"}), 401
+
+    data = request.get_json(silent=True) or {}
+    try:
+        bet_amount = float(data.get("bet_amount", 100))
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "error": "Invalid bet amount"}), 400
+
+    users = load_users()
+    user = users.get(user_id)
+    if not user or not isinstance(user, User):
+        return jsonify({"ok": False, "error": "User not found"}), 404
+
+    if bet_amount <= 0:
+        return jsonify({"ok": False, "error": "Bet must be positive"}), 400
+
+    if user.balance < bet_amount:
+        return jsonify({"ok": False, "error": "Insufficient balance"}), 400
+
+    # Deduct bet upfront
+    user.balance -= bet_amount
+
+    # Use SlotMachineGame for game logic
+    game = SlotMachineGame()
+    result = game.spin(bet_amount)
+
+    if result["multiplier"] > 0:
+        user.balance += result["winnings"]
+        user.money_won += result["profit"]
+    else:
+        user.money_lost += bet_amount
+
+    save_users(users)
+
+    return jsonify({
+        "ok": True,
+        "reels": result["reels"],
+        "multiplier": result["multiplier"],
+        "message": result["message"],
+        "new_balance": user.balance,
+    })
+
 
 @app.post("/api/sign-up")
 @csrf.exempt
 def api_sign_up():
+    print("Request headers:", dict(request.headers))
+    print("Raw data:", request.data)
     data = request.get_json(silent=True) or request.form.to_dict()
-    user_id = (data.get("user_id") or "").strip()
+    print("Parsed data:", data)
+    user_id = (data.get("user_id") or "").strip().lower()
     password = data.get("password") or ""
     password_confirm = data.get("password_confirm") or data.get("password2") or ""
-
     if not user_id or not password:
-        return jsonify({"ok": False, "error": "Missing credentials"}), 400
+        return jsonify({"ok": False, "error": "Missing username or password"}), 400
+
     if password != password_confirm:
         return jsonify({"ok": False, "error": "Passwords do not match"}), 400
 
     users = load_users()
-    if user_id in users:
+
+    if user_id in (u.lower() for u in users.keys()):
         return jsonify({"ok": False, "error": "User already exists"}), 409
 
-    hashed = bcrypt.generate_password_hash(password).decode("utf-8")
-    new_user = User(username=user_id, password=hashed, balance=10000)
+    hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+    new_user = User(username=user_id, password=hashed_password, balance=10000)
     users[user_id] = new_user
     save_users(users)
+
+    session['user_id'] = user_id
+
     return jsonify({"ok": True}), 201
+
+
 
 @app.post("/api/sign-in")
 @csrf.exempt
 def api_sign_in():
     data = request.get_json(silent=True) or request.form.to_dict()
-    user_id = (data.get("user_id") or "").strip()
+    user_id = (data.get("user_id") or "").strip().lower()
     password = data.get("password") or ""
-    users = load_users()
+
+    users = {k.lower(): v for k, v in load_users().items()}
     user = users.get(user_id)
     if not user:
         return jsonify({"ok": False, "error": "Invalid credentials"}), 401
+
     password_hash = user.password if isinstance(user, User) else user.get("password_hash", "")
     if not bcrypt.check_password_hash(password_hash, password):
         return jsonify({"ok": False, "error": "Invalid credentials"}), 401
+
     session['user_id'] = user_id
     return jsonify({"ok": True})
+
 
 @app.route("/logout")
 def logout():
     session.pop('user_id', None)
     return redirect(url_for('login'))
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

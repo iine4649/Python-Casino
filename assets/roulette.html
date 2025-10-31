@@ -67,8 +67,9 @@ body {
   background: rgba(255,255,255,.06); padding: 10px 20px; border-radius: 10px;
 }
 .bet-buttons { display: flex; gap: 10px; }
-.back-button { position: absolute; top: 20px; left: 20px; }
+.back-button { display: flex; justify-content: left; align-items: left; padding: 20px; }
 .result { font-size: 20px; font-weight: 600; margin-top: 30px; }
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
@@ -86,7 +87,7 @@ body {
   <h1>Place Your Bet</h1>
   <p>Pick a color or a number (0–36). Spin takes 2 seconds!</p>
 
-  <div class="bet-controls">
+  <div id="betControls" class="bet-controls">
     <div>Bet Amount</div>
     <div class="bet-display" id="betAmount">$100</div>
     <div class="bet-buttons">
@@ -96,15 +97,15 @@ body {
   </div>
 
   <div style="display:flex;gap:20px;margin-top:20px;">
-    <button class="btn btn-red" onclick="spin('red')">Bet on Red</button>
-    <button class="btn btn-black" onclick="spin('black')">Bet on Black</button>
-    <button class="btn btn-green" onclick="spin('green')">Bet on Green (0)</button>
+    <button id="redBtn" class="btn btn-red" onclick="spin('red')">Bet on Red</button>
+    <button id="blackBtn" class="btn btn-black" onclick="spin('black')">Bet on Black</button>
+    <button id="greenBtn" class="btn btn-green" onclick="spin('green')">Bet on Green (0)</button>
   </div>
 
   <div style="margin-top:30px;">
     <input id="numberBet" type="number" min="0" max="36" placeholder="Number (0–36)" 
            style="padding:10px;border-radius:8px;text-align:center;width:160px;">
-    <button class="btn btn-secondary" onclick="betOnNumber()">Bet on Number</button>
+    <button id="numberBtn" class="btn btn-secondary" onclick="betOnNumber()">Bet on Number</button>
   </div>
 
   <div class="result" id="resultDisplay"></div>
@@ -112,55 +113,86 @@ body {
 
 <script>
 let currentBet = 100;
+let inProgress = false;
 
 function changeBet(amount) {
+  if (inProgress) return; 
   currentBet = Math.max(100, currentBet + amount);
   document.getElementById("betAmount").textContent = `$${currentBet}`;
 }
 
+function toggleBetUI(state) {
+  const betControls = document.getElementById("betControls");
+  const buttons = ["redBtn", "blackBtn", "greenBtn", "numberBtn"].map(id => document.getElementById(id));
+
+  if (state === "hide") {
+    betControls.classList.add("hidden");
+    buttons.forEach(btn => btn.disabled = true);
+    inProgress = true;
+  } else {
+    betControls.classList.remove("hidden");
+    buttons.forEach(btn => btn.disabled = false);
+    inProgress = false;
+  }
+}
+
 async function spin(color) {
+  if (inProgress) return;
+  toggleBetUI("hide");
+
   const resultDisplay = document.getElementById("resultDisplay");
-  resultDisplay.textContent = "Spinning the wheel";
-  setTimeout(async () => {
-    try {
-      const response = await fetch("/api/roulette/spin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bet_color: color, bet_amount: currentBet })
-      });
-      const result = await response.json();
-      if (!result.ok) throw new Error(result.error);
+  resultDisplay.textContent = "Spinning the wheel...";
+
+  try {
+    const response = await fetch("/api/roulette/spin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bet_color: color, bet_amount: currentBet })
+    });
+
+    const result = await response.json();
+    if (!result.ok) throw new Error(result.error);
+    setTimeout(() => {
       resultDisplay.textContent = `Landed on ${result.number} (${result.color}) — ${result.message}`;
       updateBalance(result.new_balance);
-    } catch (err) {
-      resultDisplay.textContent = "Error: " + err.message;
-    }
-  }, 2000);
+      toggleBetUI("show");
+    }, 2000);
+  } catch (err) {
+    resultDisplay.textContent = "Error: " + err.message;
+    toggleBetUI("show");
+  }
 }
 
 async function betOnNumber() {
+  if (inProgress) return;
   const betNumber = document.getElementById("numberBet").value;
   if (betNumber === "" || betNumber < 0 || betNumber > 36) {
     alert("Please enter a valid number between 0 and 36.");
     return;
   }
+
+  toggleBetUI("hide");
   const resultDisplay = document.getElementById("resultDisplay");
   resultDisplay.textContent = "Spinning the wheel...";
-  setTimeout(async () => {
-    try {
-      const response = await fetch("/api/roulette/spin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bet_number: betNumber, bet_amount: currentBet })
-      });
-      const result = await response.json();
-      if (!result.ok) throw new Error(result.error);
+
+  try {
+    const response = await fetch("/api/roulette/spin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bet_number: betNumber, bet_amount: currentBet })
+    });
+
+    const result = await response.json();
+    if (!result.ok) throw new Error(result.error);
+    setTimeout(() => {
       resultDisplay.textContent = `Landed on ${result.number} (${result.color}) — ${result.message}`;
       updateBalance(result.new_balance);
-    } catch (err) {
-      resultDisplay.textContent = "Error: " + err.message;
-    }
-  }, 2000);
+      toggleBetUI("show");
+    }, 2000);
+  } catch (err) {
+    resultDisplay.textContent = "Error: " + err.message;
+    toggleBetUI("show");
+  }
 }
 
 function updateBalance(newBalance) {

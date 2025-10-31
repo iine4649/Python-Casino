@@ -1,72 +1,93 @@
 import random
-import time
+
 class BlackjackGame:
     def __init__(self):
-        self.user = []
-        self.bot = []
+        self.deck = self.generate_deck()
+        self.player_cards = []
+        self.dealer_cards = []
         self.game_over = False
         self.player_stayed = False
-        self.round = 1
-        self.cards = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
 
+
+    def generate_deck(self):
+        suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+        ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+        deck = [(rank, suit) for rank in ranks for suit in suits]
+        random.shuffle(deck)
+        return deck
+
+    def draw_card(self):
+        if not self.deck:
+            self.deck = self.generate_deck()
+        return self.deck.pop()
 
     def card_value(self, card):
-        if card.isdigit():    
-            return int(card)
-        elif card in ['J', 'Q', 'K']:
+        rank = card[0]
+        if rank in ['J', 'Q', 'K']:
             return 10
-        elif card == 'A' and self.calculate_total(self.user)<=10:
-            return 11
-        elif card == 'A' and self.calculate_total(self.user)>10:
-            return 1
-
-    
-    def draw_card(self, who):
-        card = random.choice(self.cards)
-        value = self.card_value(card)
-        print(f"{who.capitalize()} drew a {card}")
-
-        if who == 'user':
-            self.user.append(card)
+        elif rank == 'A':
+            return 11  # will adjust later if bust
         else:
-            self.bot.append(card)
-        return card, value
-    
-    def calculate_total(self, hand):
-        total = sum(self.card_value(card) for card in hand)
+            return int(rank)
+
+    def calculate_total(self, cards):
+        total = sum(self.card_value(card) for card in cards)
+        # Adjust Aces from 11 to 1 if total is over 21
+        aces = sum(1 for card in cards if card[0] == 'A')
+        while total > 21 and aces:
+            total -= 10
+            aces -= 1
         return total
-    
+
+    def deal_initial_cards(self):
+        self.player_cards = [self.draw_card(), self.draw_card()]
+        self.dealer_cards = [self.draw_card(), self.draw_card()]
+        return self.player_cards, self.dealer_cards
+
+
     def hit_player(self):
         if not self.game_over:
-            self.draw_card('user')
-            if self.calculate_total(self.user) > 21:
+            self.player_cards.append(self.draw_card())
+            if self.calculate_total(self.player_cards) > 21:
                 self.game_over = True
-            return self.user
+            return self.player_cards
         return None
+
+
+    def player_stay(self):
+        self.player_stayed = True
+        self.play_dealer()
+        self.game_over = True
+        return self.dealer_cards
+
+    def play_dealer(self):
+        while self.calculate_total(self.dealer_cards) < 17:
+            self.dealer_cards.append(self.draw_card())
+        return self.dealer_cards
+
+    def get_player_total(self):
+        return self.calculate_total(self.player_cards)
+
+    def get_dealer_total(self):
+        return self.calculate_total(self.dealer_cards)
+
     def get_game_result(self):
-        user_total = self.calculate_total(self.user)
-        bot_total = self.calculate_total(self.bot)
-        
-        if user_total ==21:
-            return 'win'
-        elif bot_total ==21:
-            return 'lose'
-        elif user_total > 21:
-            return 'lose'
-        elif bot_total > 21:
-            return 'win'
-        elif user_total > bot_total:
-            return 'win'
-        elif user_total < bot_total:
-            return 'lose'
+        if not self.game_over:
+            return None
+        player_total = self.get_player_total()
+        dealer_total = self.get_dealer_total()
+
+        if player_total > 21:
+            return "lose"
+        elif dealer_total > 21:
+            return "player_wins"
+        elif player_total > dealer_total:
+            return "player_wins"
+        elif player_total < dealer_total:
+            return "dealer_wins"
         else:
-            return 'tie'
-bet=int(input("Enter your bet amount: "))
-while True:
-    game = BlackjackGame()
-    for i in range(2):
-        game.draw_card('user')
-        game.draw_card('bot')
+            return "tie"
+
 
 
     def calculate_total(self, cards):
@@ -99,16 +120,8 @@ while True:
     print(f"Your hand: {game.user} (total = {user_total})")
     print(f"Dealer's hand: {game.bot} (total = {bot_total})")
 
-    result = game.get_game_result()
-    if result == 'win':
-        print("You win!")
-        bet=2*bet
-    elif result == 'lose':
-        print("You lose!")
-        bet
-    else:
-        print("It's a tie!")
-    print(f"Your bet was: {bet}")
-    play_again = input("Play again? (y/n): ")
-    if play_again != 'y':
-        break
+    def card_to_string(self, card):
+        rank, suit = card
+        return f"{rank} of {suit}"
+
+
