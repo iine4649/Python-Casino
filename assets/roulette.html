@@ -143,16 +143,16 @@ function changeBet(amount) {
   applyBet(Math.min(MAX_BET, currentBet + amount));
 }
 
-function toggleBetUI(state) {
-  const betControls = document.getElementById("betControls");
-  const buttons = ["redBtn","blackBtn","greenBtn","numberBtn"].map(id=>document.getElementById(id));
+  function toggleBetUI(state) {
+    const betControls = document.getElementById("betControls");
+    const buttons = ["redBtn","blackBtn","greenBtn","numberBtn"].map(id=>document.getElementById(id)).filter(Boolean);
   if (state === "hide") {
     betControls.classList.add("hidden");
-    buttons.forEach(b=>b.disabled=true);
+      buttons.forEach(b=>b.disabled=true);
     inProgress = true;
   } else {
     betControls.classList.remove("hidden");
-    buttons.forEach(b=>b.disabled=false);
+      buttons.forEach(b=>b.disabled=false);
     inProgress = false;
   }
 }

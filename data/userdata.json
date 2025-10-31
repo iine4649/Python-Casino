@@ -2,81 +2,160 @@
   "iine4649": {
     "username": "iine4649",
     "password": "$2b$12$heWe5aFR2vQ2huAOb0H4PeDeokdnZg/k5NA2YU2oodRmCleZVmwrm",
+    "nickname": "iine4649",
     "balance": 100.0,
     "money_won": 0,
     "money_lost": 0,
-    "games_played": 0
+    "games_played": 0,
+    "history": []
   },
   "goodperson": {
     "username": "goodperson",
     "password": "$2b$12$/ThalzNJiyTtyPkxsUB2OOQ.IZ7hSojxILccGWevDBqvhOC9r.gvq",
+    "nickname": "goodperson",
     "balance": 500,
     "money_won": 0,
     "money_lost": 0,
-    "games_played": 0
+    "games_played": 0,
+    "history": []
   },
   "betamale": {
     "username": "betamale",
     "password": "$2b$12$zJXgor8yursXAljOz1T4oeDUqCE3Jfzuaq8kt2G3y6/uirLukTpiu",
+    "nickname": "betamale",
     "balance": 10000,
     "money_won": 0,
     "money_lost": 0,
-    "games_played": 0
+    "games_played": 0,
+    "history": []
   },
   "sd": {
     "username": "sd",
     "password": "$2b$12$8mvl0bCZ3uQQsqmji7Pa..b8D1mWMGt/a/WWNRMr78fhxvnaw.2Hi",
+    "nickname": "sd",
     "balance": 1e+308,
-    "money_won": 2800.0,
-    "money_lost": 7800.0,
-    "games_played": 0
+    "money_won": 3100.0,
+    "money_lost": 7900.0,
+    "games_played": 0,
+    "history": []
   },
   "qilok": {
     "username": "qilok",
     "password": "$2b$12$WA5XPmoD9HMHb5oe6yNAYukPyz03IMSDXOH.2aHKYxODLSFnZemNC",
+    "nickname": "qilok",
     "balance": 5600.0,
     "money_won": 12300.0,
     "money_lost": 12600.0,
-    "games_played": 135
+    "games_played": 135,
+    "history": []
   },
   "as": {
     "username": "as",
     "password": "$2b$12$YGUdDjgEC1Xwuegmufx4duiv2VZNIfZsN1M1zGA1jUA7vHChUSGRu",
+    "nickname": "as",
     "balance": 7400.0,
     "money_won": 2800.0,
     "money_lost": 4000.0,
-    "games_played": 0
+    "games_played": 0,
+    "history": []
   },
   "qq": {
     "username": "qq",
     "password": "$2b$12$tFFUWX7m5E30AxG5A9s.j.V.eLUbzwCPT3HVebIOaZlFUKwYgZm9m",
+    "nickname": "qq",
     "balance": 10000,
     "money_won": 0,
     "money_lost": 0,
-    "games_played": 0
+    "games_played": 0,
+    "history": []
   },
   "kkkkk": {
     "username": "kkkkk",
     "password": "$2b$12$foUm1fBy0JJkBtNql/f0CeTY3IF2nupBGXLcE8UwFR85qK2SId1.m",
+    "nickname": "kkkkk",
     "balance": 10000,
     "money_won": 0,
     "money_lost": 0,
-    "games_played": 0
+    "games_played": 0,
+    "history": []
   },
   "qilok1": {
     "username": "qilok1",
     "password": "$2b$12$OA87qKnbIlOBHwwQaUdHT.gSIQdbcu3hcD70HhpvS4BfSBLmdKS/u",
+    "nickname": "qilok1",
     "balance": 10000,
     "money_won": 0,
     "money_lost": 0,
-    "games_played": 0
+    "games_played": 0,
+    "history": []
   },
   "qw": {
     "username": "qw",
     "password": "$2b$12$diLaFfSVdjT4ts3XaMG8ou8mXRvd1RPuoCIlqErujyCm2RNTcE3D.",
+    "nickname": "qw",
     "balance": 7999500.0,
     "money_won": 300.0,
     "money_lost": 1001700.0,
-    "games_played": 0
+    "games_played": 0,
+    "history": []
+  },
+  "st": {
+    "username": "st",
+    "password": "$2b$12$liDARPibwTcP2E6O4QlcSO7lQ7GBt9nXilpwCjflUrWQWRZJP07Ii",
+    "nickname": "kind",
+    "balance": 10000.0,
+    "money_won": 600.0,
+    "money_lost": 600.0,
+    "games_played": 0,
+    "history": [
+      {
+        "timestamp": "2025-10-31 09:41:44",
+        "game": "blackjack",
+        "result": "win",
+        "amount": 100.0
+      },
+      {
+        "timestamp": "2025-10-31 09:42:06",
+        "game": "blackjack",
+        "result": "win",
+        "amount": 100.0
+      },
+      {
+        "timestamp": "2025-10-31 09:42:11",
+        "game": "roulette",
+        "result": "lose",
+        "amount": -100
+      },
+      {
+        "timestamp": "2025-10-31 09:42:13",
+        "game": "roulette",
+        "result": "win",
+        "amount": 100
+      },
+      {
+        "timestamp": "2025-10-31 09:42:18",
+        "game": "slotmachine",
+        "result": "lose",
+        "amount": -100.0
+      },
+      {
+        "timestamp": "2025-10-31 09:42:20",
+        "game": "slotmachine",
+        "result": "win",
+        "amount": 400.0
+      },
+      {
+        "timestamp": "2025-10-31 09:42:22",
+        "game": "slotmachine",
+        "result": "lose",
+        "amount": -100.0
+      },
+      {
+        "timestamp": "2025-10-31 09:42:26",
+        "game": "slotmachine",
+        "result": "lose",
+        "amount": -100.0
+      }
+    ]
   }
 }

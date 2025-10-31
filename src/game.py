@@ -90,7 +90,14 @@ class BlackjackGame:
 
     def card_to_string(self, card):
         rank, suit = card
-        return f"{rank} of {suit}"
+        suit_symbols = {
+            'Hearts': '♥',
+            'Diamonds': '♦',
+            'Clubs': '♣',
+            'Spades': '♠',
+        }
+        symbol = suit_symbols.get(suit, suit)
+        return f"{rank}{symbol}"
 
 
 

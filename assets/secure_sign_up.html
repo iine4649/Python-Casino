@@ -218,6 +218,8 @@ body {
 <form id="signup-form" class="form" action="#" method="post">
 <label for="user-id" class="label" id="label-id">ID</label>
 <input type="text" id="user-id" class="input" name="user_id" placeholder="Choose your ID" required>
+<label for="nickname" class="label" id="label-nickname">Nickname</label>
+<input type="text" id="nickname" class="input" name="nickname" placeholder="Shown in the casino" required>
 <label for="password" class="label" id="label-password">Password</label>
 <input type="password" id="password" class="input" name="password" placeholder="Create a strong password" required>
 <label for="password2" class="label" id="label-password2">Confirm Password</label>
@@ -249,14 +251,14 @@ var footerPrefix=document.getElementById('footer-prefix');
 var footerLink=document.getElementById('footer-link');
 var hint=document.getElementById('hint-text');
 var t={
-  en:{html:'en',title:'Sign up',sub:'Create your account to start playing.',id:'ID',idPh:'Choose your ID',pw:'Password',pwPh:'Create a strong password',pw2:'Confirm Password',pw2Ph:'Re-enter your password',hint:'Use 8+ characters with letters and numbers.',up:'Sign Up',back:'Back to Sign In',foot:'Already have an account?','footLink':'Sign In'},
-  ja:{html:'ja',title:'新規登録',sub:'アカウントを作成してゲームを始めましょう。',id:'ID',idPh:'ID を入力',pw:'パスワード',pwPh:'強力なパスワードを作成',pw2:'パスワード（確認）',pw2Ph:'パスワードを再入力',hint:'英数字を含む8文字以上を推奨。',up:'新規登録',back:'サインインへ戻る',foot:'すでにアカウントをお持ちですか？','footLink':'サインイン'},
+  en:{html:'en',title:'Sign up',sub:'Create your account to start playing.',id:'ID',idPh:'Choose your ID',nn:'Nickname',nnPh:'Shown in the casino',pw:'Password',pwPh:'Create a strong password',pw2:'Confirm Password',pw2Ph:'Re-enter your password',hint:'Use 8+ characters with letters and numbers.',up:'Sign Up',back:'Back to Sign In',foot:'Already have an account?','footLink':'Sign In'},
+  ja:{html:'ja',title:'新規登録',sub:'アカウントを作成してゲームを始めましょう。',id:'ID',idPh:'ID を入力',nn:'ニックネーム',nnPh:'カジノ内で表示されます',pw:'パスワード',pwPh:'強力なパスワードを作成',pw2:'パスワード（確認）',pw2Ph:'パスワードを再入力',hint:'英数字を含む8文字以上を推奨。',up:'新規登録',back:'サインインへ戻る',foot:'すでにアカウントをお持ちですか？','footLink':'サインイン'},
   zh:{html:'zh',title:'注册',sub:'创建账号开始游戏。',id:'账号',idPh:'设置账号',pw:'密码',pwPh:'创建强密码',pw2:'确认密码',pw2Ph:'再次输入密码',hint:'建议使用8位以上且包含字母与数字。',up:'注册',back:'返回登录',foot:'已经有账号？','footLink':'登录'},
   ko:{html:'ko',title:'회원가입',sub:'계정을 만들어 게임을 시작하세요.',id:'아이디',idPh:'아이디 설정',pw:'비밀번호',pwPh:'강력한 비밀번호 생성',pw2:'비밀번호 확인',pw2Ph:'비밀번호 재입력',hint:'문자와 숫자를 포함해 8자 이상 권장.',up:'회원가입',back:'로그인으로 돌아가기',foot:'이미 계정이 있으신가요?','footLink':'로그인'},
-  ru:{html:'ru',title:'Регистрация',sub:'Создайте аккаунт, чтобы начать играть.',id:'ID',idPh:'Выберите ID',pw:'Пароль',pwPh:'Создайте надежный пароль',pw2:'Подтвердите пароль',pw2Ph:'Повторите пароль',hint:'Рекомендуется 8+ символов с буквами и цифрами.',up:'Регистрация',back:'Вернуться ко входу',foot:'Уже есть аккаунт?','footLink':'Войти'},
-  de:{html:'de',title:'Registrieren',sub:'Erstelle dein Konto, um zu spielen.',id:'ID',idPh:'ID wählen',pw:'Passwort',pwPh:'Sicheres Passwort erstellen',pw2:'Passwort bestätigen',pw2Ph:'Passwort erneut eingeben',hint:'Mind. 8 Zeichen mit Buchstaben und Zahlen.',up:'Registrieren',back:'Zur Anmeldung zurück',foot:'Du hast bereits ein Konto?','footLink':'Anmelden'},
-  es:{html:'es',title:'Registrarse',sub:'Crea tu cuenta para comenzar a jugar.',id:'ID',idPh:'Elige tu ID',pw:'Contraseña',pwPh:'Crea una contraseña segura',pw2:'Confirmar contraseña',pw2Ph:'Vuelve a escribir la contraseña',hint:'Usa 8+ caracteres con letras y números.',up:'Registrarse',back:'Volver a iniciar sesión',foot:'¿Ya tienes una cuenta?','footLink':'Iniciar sesión'},
-  la:{html:'la',title:'Adscriptio',sub:'Rationem crea ut ludere incipias.',id:'ID',idPh:'ID elige',pw:'Tessera',pwPh:'Tesseram validam crea',pw2:'Tessera confirmanda',pw2Ph:'Tesseram iterum insere',hint:'Utere 8+ notis cum litteris et numeris.',up:'Adscribe',back:'Revertere ad Ingrediendum',foot:'Iam rationem habes?','footLink':'Ingredere'}
+  ru:{html:'ru',title:'Регистрация',sub:'Создайте аккаунт, чтобы начать играть.',id:'ID',idPh:'Выберите ID',nn:'Никнейм',nnPh:'Отображается в казино',pw:'Пароль',pwPh:'Создайте надежный пароль',pw2:'Подтвердите пароль',pw2Ph:'Повторите пароль',hint:'Рекомендуется 8+ символов с буквами и цифрами.',up:'Регистрация',back:'Вернуться ко входу',foot:'Уже есть аккаунт?','footLink':'Войти'},
+  de:{html:'de',title:'Registrieren',sub:'Erstelle dein Konto, um zu spielen.',id:'ID',idPh:'ID wählen',nn:'Spitzname',nnPh:'Anzeigename im Casino',pw:'Passwort',pwPh:'Sicheres Passwort erstellen',pw2:'Passwort bestätigen',pw2Ph:'Passwort erneut eingeben',hint:'Mind. 8 Zeichen mit Buchstaben und Zahlen.',up:'Registrieren',back:'Zur Anmeldung zurück',foot:'Du hast bereits ein Konto?','footLink':'Anmelden'},
+  es:{html:'es',title:'Registrarse',sub:'Crea tu cuenta para comenzar a jugar.',id:'ID',idPh:'Elige tu ID',nn:'Apodo',nnPh:'Nombre visible en el casino',pw:'Contraseña',pwPh:'Crea una contraseña segura',pw2:'Confirmar contraseña',pw2Ph:'Vuelve a escribir la contraseña',hint:'Usa 8+ caracteres con letras y números.',up:'Registrarse',back:'Volver a iniciar sesión',foot:'¿Ya tienes una cuenta?','footLink':'Iniciar sesión'},
+  la:{html:'la',title:'Adscriptio',sub:'Rationem crea ut ludere incipias.',id:'ID',idPh:'ID elige',nn:'Cognomen',nnPh:'Nomen ostentum in casino',pw:'Tessera',pwPh:'Tesseram validam crea',pw2:'Tessera confirmanda',pw2Ph:'Tesseram iterum insere',hint:'Utere 8+ notis cum litteris et numeris.',up:'Adscribe',back:'Revertere ad Ingrediendum',foot:'Iam rationem habes?','footLink':'Ingredere'}
 };
 function apply(lang){
   var d=t[lang]||t.en;
@@ -265,6 +267,8 @@ function apply(lang){
   subtitleText.textContent=d.sub;
   labelId.textContent=d.id;
   inputId.placeholder=d.idPh;
+  document.getElementById('label-nickname').textContent=d.nn;
+  document.getElementById('nickname').placeholder=d.nnPh;
   labelPassword.textContent=d.pw;
   inputPw.placeholder=d.pwPh;
   labelPassword2.textContent=d.pw2;
@@ -288,6 +292,7 @@ document.getElementById('signup-form').addEventListener('submit', async function
   const formData = new FormData(this);
   const data = {
     user_id: formData.get('user_id'),
+    nickname: formData.get('nickname'),
     password: formData.get('password'),
     password_confirm: formData.get('password_confirm')
   };

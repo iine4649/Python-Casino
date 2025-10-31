@@ -9,6 +9,7 @@ from user import User
 from game import BlackjackGame
 from typing import List
 from slotmachine import SlotMachineGame
+from datetime import datetime
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_FILE = BASE_DIR / "data" / "userdata.json"
@@ -75,9 +76,7 @@ def save_users(users: dict) -> None:
             user_dicts[username] = user
     DATA_FILE.write_text(json.dumps(user_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
 
-# ------------------------------
-# Routes
-# ------------------------------
+ 
 
 @app.route("/")
 def login():
@@ -112,10 +111,13 @@ def sign_in_form():
 @app.route("/lobby")
 def lobby():
     user_id = session.get('user_id', 'Guest')
+    if user_id in active_games:
+        active_games.pop(user_id, None)
     users = load_users()
     user = users.get(user_id)
     balance = user.balance if user else 1000
-    return render_template("lobby.html", username=user_id, balance=balance)
+    display_name = (user.nickname if user and getattr(user, 'nickname', None) else user_id)
+    return render_template("lobby.html", username=display_name, balance=balance)
 
 @app.route("/dashboard")
 def dashboard():
@@ -124,21 +126,24 @@ def dashboard():
     user = users.get(user_id)
     if user and isinstance(user, User):
         balance, money_won, money_lost = user.balance, user.money_won, user.money_lost
+        history = getattr(user, 'history', [])
     else:
         balance, money_won, money_lost = 1000, 0, 0
-    return render_template("dashboard.html", username=user_id, balance=balance, money_won=money_won, money_lost=money_lost)
+        history = []
+    display_name = (user.nickname if user and getattr(user, 'nickname', None) else user_id)
+    return render_template("dashboard.html", username=display_name, balance=balance, money_won=money_won, money_lost=money_lost, history=history)
 
 @app.route("/blackjack")
 def blackjack():
     user_id = session.get('user_id', 'Guest')
+    active_games.pop(user_id, None)
     users = load_users()
     user = users.get(user_id)
     balance = user.balance if user else 1000
-    return render_template("blackjack.html", username=user_id, balance=balance)
+    display_name = (user.nickname if user and getattr(user, 'nickname', None) else user_id)
+    return render_template("blackjack.html", username=display_name, balance=balance)
 
-# ------------------------------
-# Blackjack API
-# ------------------------------
+ 
 
 @app.post("/api/blackjack/deal")
 @csrf.exempt
@@ -250,10 +255,28 @@ def api_blackjack_stand():
     if result in ["player_wins", "win"]:
         user.balance += bet * 2
         user.money_won += bet
+        user.history.append({
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "game": "blackjack",
+            "result": "win",
+            "amount": bet,
+        })
     elif result == "tie":
         user.balance += bet
+        user.history.append({
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "game": "blackjack",
+            "result": "tie",
+            "amount": 0,
+        })
     else:
         user.money_lost += bet
+        user.history.append({
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "game": "blackjack",
+            "result": "lose",
+            "amount": -bet,
+        })
 
     save_users(users)
     del active_games[user_id]
@@ -271,14 +294,15 @@ def api_blackjack_stand():
         "new_balance": user.balance
     })
 
-# ------------------------------
-# Deposit System
-# ------------------------------
+ 
 
 @app.route("/deposit")
 def deposit():
     user_id = session.get('user_id', 'Guest')
-    return render_template("deposit.html", username=user_id)
+    users = load_users()
+    user = users.get(user_id)
+    display_name = (user.nickname if user and getattr(user, 'nickname', None) else user_id)
+    return render_template("deposit.html", username=display_name)
 
 @app.post("/api/deposit")
 @csrf.exempt
@@ -305,6 +329,12 @@ def api_deposit():
         return jsonify({"ok": False, "error": "User not found"}), 404
 
     user.deposit(amount)
+    user.history.append({
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "game": "deposit",
+        "result": "deposit",
+        "amount": amount,
+    })
     save_users(users)
 
     return jsonify({
@@ -315,17 +345,17 @@ def api_deposit():
 
 
 
-# ------------------------------
-# Roulette
-# ------------------------------
+ 
 
 @app.route("/roulette")
 def roulette():
     user_id = session.get('user_id', 'Guest')
+    active_games.pop(user_id, None)
     users = load_users()
     user = users.get(user_id)
     balance = user.balance if user else 1000
-    return render_template("roulette.html", username=user_id, balance=balance)
+    display_name = (user.nickname if user and getattr(user, 'nickname', None) else user_id)
+    return render_template("roulette.html", username=display_name, balance=balance)
 
 @app.post("/api/roulette/spin")
 @csrf.exempt
@@ -377,9 +407,21 @@ def roulette_spin():
     if win:
         user.balance += payout
         message = f"You won ${payout - bet_amount} on {win_type}!"
+        user.history.append({
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "game": "roulette",
+            "result": "win",
+            "amount": payout - bet_amount,
+        })
     else:
         user.balance -= bet_amount
         message = f"You lost ${bet_amount}."
+        user.history.append({
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "game": "roulette",
+            "result": "lose",
+            "amount": -bet_amount,
+        })
 
     save_users(users)
     active_games.pop(user_id, None)
@@ -398,7 +440,8 @@ def slotmachine():
     users = load_users()
     user = users.get(user_id)
     balance = user.balance if user else 1000
-    return render_template("slotmachine.html", username=user_id, balance=balance)
+    display_name = (user.nickname if user and getattr(user, 'nickname', None) else user_id)
+    return render_template("slotmachine.html", username=display_name, balance=balance)
 
 
 @app.post("/api/slot/spin")
@@ -427,18 +470,28 @@ def api_slot_spin():
     if user.balance < bet_amount:
         return jsonify({"ok": False, "error": "Insufficient balance"}), 400
 
-    # Deduct bet upfront
     user.balance -= bet_amount
 
-    # Use SlotMachineGame for game logic
     game = SlotMachineGame()
     result = game.spin(bet_amount)
 
     if result["multiplier"] > 0:
         user.balance += result["winnings"]
         user.money_won += result["profit"]
+        user.history.append({
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "game": "slotmachine",
+            "result": "win",
+            "amount": result["profit"],
+        })
     else:
         user.money_lost += bet_amount
+        user.history.append({
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "game": "slotmachine",
+            "result": "lose",
+            "amount": -bet_amount,
+        })
 
     save_users(users)
 
@@ -458,10 +511,13 @@ def api_sign_up():
     data = request.get_json(silent=True) or request.form.to_dict()
     print("Parsed data:", data)
     user_id = (data.get("user_id") or "").strip().lower()
+    nickname = (data.get("nickname") or "").strip()
     password = data.get("password") or ""
     password_confirm = data.get("password_confirm") or data.get("password2") or ""
     if not user_id or not password:
         return jsonify({"ok": False, "error": "Missing username or password"}), 400
+    if not nickname:
+        return jsonify({"ok": False, "error": "Missing nickname"}), 400
 
     if password != password_confirm:
         return jsonify({"ok": False, "error": "Passwords do not match"}), 400
@@ -472,7 +528,7 @@ def api_sign_up():
         return jsonify({"ok": False, "error": "User already exists"}), 409
 
     hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
-    new_user = User(username=user_id, password=hashed_password, balance=10000)
+    new_user = User(username=user_id, nickname=nickname, password=hashed_password, balance=10000)
     users[user_id] = new_user
     save_users(users)
 
