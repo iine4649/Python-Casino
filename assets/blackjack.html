@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blackjack - Python Casino</title>
+  <style>
+    :root {
+      --bg: #0c0f14;
+      --card: #151a22;
+      --accent: #00d4ff;
+      --accent-2: #8a2be2;
+      --text: #e8eef6;
+      --muted: #9aa7b2;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(138, 43, 226, .25), transparent 60%),
+        radial-gradient(1000px 700px at 80% 90%, rgba(0, 212, 255, .2), transparent 60%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: rgba(255, 255, 255, .03);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .balance {
+      font-size: 16px;
+      color: var(--muted);
+    }
+
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 80vh;
+      padding: 40px 20px;
+    }
+
+    .game-table {
+      width: 100%;
+      max-width: 800px;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 16px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+
+    .bet-controls {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .bet-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bet-amount {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(255, 255, 255, .06);
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      min-width: 120px;
+      text-align: center;
+    }
+
+    .bet-input {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 10px;
+      padding: 8px 14px;
+      width: 140px;
+      text-align: center;
+    }
+
+    .bet-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: transform .06s ease, box-shadow .2s ease;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #4de2ff);
+      box-shadow: 0 4px 12px rgba(0, 212, 255, .35);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, var(--accent-2), #b07cff);
+      box-shadow: 0 4px 12px rgba(138, 43, 226, .35);
+      color: #fff;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ff4757, #ff6b7a);
+      box-shadow: 0 4px 12px rgba(255, 71, 87, .35);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .game-area {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .player-area,
+    .dealer-area {
+      text-align: center;
+    }
+
+    .area-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--accent);
+    }
+
+    .cards {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    .card {
+      width: 60px;
+      height: 84px;
+      background: rgba(255, 255, 255, .1);
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .game-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .back-button {
+      display: flex;
+      justify-content: left;
+      align-items: left;
+      padding: 20px;
+    }
+
+    .footer {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">Blackjack</div>
+    <div class="balance">
+      Welcome, {{ username }} | Balance: ${{ "%.2f"|format(balance) }} |
+      <a href="/logout" style="color:var(--accent);text-decoration:none;">Logout</a>
+    </div>
+  </nav>
+
+  <div class="back-button">
+    <button class="btn btn-secondary" onclick="window.location.href='/lobby'">← Back to Lobby</button>
+  </div>
+
+  <div class="game-container">
+    <div class="game-table">
+      <div id="betControls" class="bet-controls">
+        <div class="bet-display">
+          <div style="font-size:14px;color:var(--muted);margin-bottom:5px;">Bet Amount (x100)</div>
+          <input id="betInput" class="bet-input" type="number" min="100" max="1000000000" step="100" inputmode="numeric" pattern="[0-9]*" value="100" />
+          <div class="bet-buttons">
+            <button class="btn btn-primary btn-small" onclick="changeBet(-100)">-100</button>
+            <button class="btn btn-primary btn-small" onclick="changeBet(100)">+100</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-area">
+        <div class="dealer-area">
+          <div class="area-title">Dealer</div>
+          <div class="cards" id="dealerCards"></div>
+          <div style="font-size:14px;color:var(--muted);">Total: <span id="dealerTotal">0</span></div>
+        </div>
+
+        <div class="player-area">
+          <div class="area-title">Your Cards</div>
+          <div class="cards" id="playerCards"></div>
+          <div style="font-size:14px;color:var(--muted);">Total: <span id="playerTotal">0</span></div>
+        </div>
+      </div>
+
+      <div class="game-buttons">
+        <button class="btn btn-primary" id="dealBtn" onclick="dealCards()">Deal Cards</button>
+        <button class="btn btn-secondary" id="hitBtn" onclick="hit()" style="display:none;">Hit</button>
+        <button class="btn btn-danger" id="standBtn" onclick="stand()" style="display:none;">Stand</button>
+        <button class="btn btn-secondary" id="newGameBtn" onclick="newGame()" style="display:none;">New Game</button>
+      </div>
+
+      <div id="gameStatus" style="text-align:center;margin-top:20px;font-size:16px;font-weight:600;">
+        Place your bet and click "Deal Cards" to start!
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Copyright © 2025 Python Casino. All rights reserved.</div>
+
+  <script>
+    let currentBet = 100;
+    let gameStarted = false;
+    let inProgress = false;
+
+    const MAX_BET = 1000000000;
+
+    function sanitizeBet(value) {
+      let v = parseInt(String(value).replace(/\D+/g, ''), 10);
+      if (isNaN(v)) v = 100;
+      if (v < 100) v = 100;
+      if (v > MAX_BET) v = MAX_BET;
+      v = Math.floor(v / 100) * 100;
+      return v;
+    }
+
+    function applyBet(newValue) {
+      currentBet = sanitizeBet(newValue);
+      const input = document.getElementById('betInput');
+      if (input) input.value = String(currentBet);
+    }
+
+    function updateBetDisplay() {
+      const input = document.getElementById('betInput');
+      if (input) input.value = String(currentBet);
+    }
+
+    function changeBet(amount) {
+      if (inProgress) return;
+      let next = currentBet + amount;
+      if (next < 100) next = 100;
+      if (next > MAX_BET) next = MAX_BET;
+      currentBet = next;
+      updateBetDisplay();
+    }
+
+    function toggleBetUI(state) {
+      const betControls = document.getElementById('betControls');
+      const dealBtn = document.getElementById('dealBtn');
+      if (state === 'hide') {
+        betControls.classList.add('hidden');
+        dealBtn.disabled = true;
+        inProgress = true;
+      } else {
+        betControls.classList.remove('hidden');
+        dealBtn.disabled = false;
+        inProgress = false;
+      }
+    }
+
+    async function dealCards() {
+      if (gameStarted || inProgress) return;
+      toggleBetUI('hide');
+
+      try {
+        const response = await fetch('/api/blackjack/deal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bet_amount: currentBet })
+        });
+        const result = await response.json();
+
+        if (result.ok) {
+          gameStarted = true;
+          updateCards(result);
+          updateButtons();
+          updateGameStatus('Game in progress! Hit or Stand?');
+          updateBalance(result.new_balance);
+        } else {
+          alert('Error: ' + result.error);
+          toggleBetUI('show');
+        }
+      } catch (e) {
+        alert('Error: ' + e.message);
+        toggleBetUI('show');
+      }
+    }
+
+    async function hit() {
+      if (!gameStarted) return;
+      try {
+        const res = await fetch('/api/blackjack/hit', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const r = await res.json();
+        if (r.ok) {
+          updateCards(r);
+          if (r.game_over) {
+            updateGameStatus(r.result === 'bust' ? 'Bust! You lose $' + currentBet : 'Round over.');
+            endGame();
+          }
+        } else alert('Error: ' + r.error);
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    async function stand() {
+      if (!gameStarted) return;
+      try {
+        const res = await fetch('/api/blackjack/stand', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const r = await res.json();
+        if (r.ok) {
+          updateCards(r);
+          updateBalance(r.new_balance);
+          let msg = '';
+          switch (r.game_result) {
+            case 'player_wins': msg = 'You win $' + r.bet + '!'; break;
+            case 'dealer_bust': msg = 'Dealer busts! You win $' + r.bet + '!'; break;
+            case 'tie': msg = 'Push! Your bet is returned.'; break;
+            default: msg = 'You lose $' + r.bet;
+          }
+          updateGameStatus(msg);
+          endGame();
+        } else alert('Error: ' + r.error);
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    function newGame() {
+      gameStarted = false;
+      toggleBetUI('show');
+      document.getElementById('playerCards').innerHTML = '';
+      document.getElementById('dealerCards').innerHTML = '';
+      document.getElementById('playerTotal').textContent = '0';
+      document.getElementById('dealerTotal').textContent = '0';
+      updateButtons();
+      updateGameStatus('Place your bet and click "Deal Cards" to start!');
+    }
+
+    function updateCards(r) {
+      document.getElementById('playerCards').innerHTML = r.player_cards.map(c => `<div class="card">${c}</div>`).join('');
+      document.getElementById('dealerCards').innerHTML = r.dealer_cards.map(c => `<div class="card">${c}</div>`).join('');
+      document.getElementById('playerTotal').textContent = r.player_total;
+      document.getElementById('dealerTotal').textContent = r.dealer_total;
+    }
+
+    function updateButtons() {
+      document.getElementById('dealBtn').style.display = gameStarted ? 'none' : 'inline-block';
+      document.getElementById('hitBtn').style.display = gameStarted ? 'inline-block' : 'none';
+      document.getElementById('standBtn').style.display = gameStarted ? 'inline-block' : 'none';
+      document.getElementById('newGameBtn').style.display = 'none';
+    }
+
+    function updateGameStatus(msg) { document.getElementById('gameStatus').textContent = msg; }
+
+    function updateBalance(b) {
+      const el = document.querySelector('.balance');
+      const username = el.textContent.split('|')[0].trim();
+      el.innerHTML = `${username} | Balance: $${b.toFixed(2)} | <a href="/logout" style="color:var(--accent);text-decoration:none;">Logout</a>`;
+    }
+
+    function endGame() {
+      document.getElementById('hitBtn').style.display = 'none';
+      document.getElementById('standBtn').style.display = 'none';
+      document.getElementById('newGameBtn').style.display = 'inline-block';
+      toggleBetUI('show');
+    }
+
+    // 入力欄バリデーション
+    const betInputEl = document.getElementById('betInput');
+    if (betInputEl) {
+      betInputEl.addEventListener('input', (e) => {
+        const before = e.target.value;
+        const sanitizedInt = parseInt(String(before).replace(/\D+/g, ''), 10);
+        e.target.value = isNaN(sanitizedInt) ? '' : String(sanitizedInt);
+      });
+      betInputEl.addEventListener('change', (e) => {
+        applyBet(e.target.value);
+      });
+    }
+
+    updateBetDisplay();
+  </script>
+</body>
+
+</html>

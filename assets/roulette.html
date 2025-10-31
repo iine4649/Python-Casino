@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roulette - Python Casino</title>
+<style>
+:root {
+  --bg: #0c0f14;
+  --accent: #00d4ff;
+  --accent-2: #8a2be2;
+  --text: #e8eef6;
+  --muted: #9aa7b2;
+}
+body {
+  margin: 0;
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  background: radial-gradient(1000px 700px at 80% 90%, rgba(0,212,255,.2), transparent 60%), var(--bg);
+  color: var(--text);
+}
+.navbar {
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 40px;
+  background:rgba(255,255,255,.03);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.logo{font-size:22px;font-weight:600;color:var(--accent);}
+.balance{font-size:16px;color:var(--muted);}
+.container{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;}
+
+/* BUTTON SYSTEM */
+.btn {
+  padding: 12px 24px; border:none; border-radius:10px;
+  font-weight:600; cursor:pointer;
+  transition: transform .06s ease, box-shadow .2s ease;
+}
+.btn:hover { transform: translateY(-2px); }
+
+/* categories */
+.btn-action {
+  background: linear-gradient(135deg, #4caf50, #00e676);
+  box-shadow: 0 8px 20px rgba(76,175,80,.35);
+  color: #0a0f14;
+}
+.btn-risk {
+  background: linear-gradient(135deg, #ff4d4d, #ff7b00);
+  box-shadow: 0 8px 20px rgba(255,77,77,.35);
+  color: #fff;
+}
+.btn-secondary {
+  background: linear-gradient(135deg, var(--accent-2), #b07cff);
+  box-shadow: 0 8px 20px rgba(138,43,226,.35);
+  color: #fff;
+}
+.bet-controls {
+  margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.bet-display {
+  font-size: 20px; color: var(--accent); font-weight: 600;
+  background: rgba(255,255,255,.06); padding: 10px 20px; border-radius: 10px;
+}
+.bet-buttons { display: flex; gap: 10px; }
+.bet-input {
+  font-size: 20px; font-weight: 700; color: var(--accent);
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  padding: 8px 14px;
+  width: 140px;
+  text-align: center;
+}
+.back-button { display: flex; justify-content: left; align-items: left; padding: 20px; }
+.result { font-size: 20px; font-weight: 600; margin-top: 30px; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="logo">Roulette</div>
+  <div class="balance">Welcome, {{ username }} | Balance: ${{ "%.2f"|format(balance) }} |
+    <a href="/logout" style="color:var(--accent);text-decoration:none;">Logout</a></div>
+</nav>
+
+<div class="back-button">
+  <button class="btn btn-secondary" onclick="window.location.href='/lobby'">← Back to Lobby</button>
+</div>
+
+<div class="container">
+  <h1>Place Your Bet</h1>
+  <p>Pick a color or a number (0–36). Spin takes 2 seconds!</p>
+
+  <div id="betControls" class="bet-controls">
+    <div>Bet Amount (x100)</div>
+    <input id="betInput" class="bet-input" type="number" min="100" max="1000000000" step="100" inputmode="numeric" pattern="[0-9]*" value="100" />
+    <div class="bet-buttons">
+      <button class="btn btn-secondary" onclick="changeBet(-100)">-100</button>
+      <button class="btn btn-secondary" onclick="changeBet(100)">+100</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:20px;margin-top:20px;">
+    <button id="redBtn" class="btn btn-risk" onclick="spin('red')">Bet on Red</button>
+    <button id="blackBtn" class="btn btn-secondary" onclick="spin('black')">Bet on Black</button>
+    <button id="greenBtn" class="btn btn-action" onclick="spin('green')">Bet on Green (0)</button>
+  </div>
+
+  <div style="margin-top:30px;">
+    <input id="numberBet" type="number" min="0" max="36" placeholder="Number (0–36)" 
+           style="padding:10px;border-radius:8px;text-align:center;width:160px;">
+    <button id="numberBtn" class="btn btn-secondary" onclick="betOnNumber()">Bet on Number</button>
+  </div>
+
+  <div class="result" id="resultDisplay"></div>
+</div>
+
+<script>
+let currentBet = 100;
+let inProgress = false;
+const MAX_BET = 1000000000;
+
+function sanitizeBet(value) {
+  // 1) 数値化と整数化
+  let v = parseInt(String(value).replace(/\D+/g, ''), 10);
+  if (isNaN(v)) v = 100;
+  // 2) 下限
+  if (v < 100) v = 100;
+  // 2.5) 上限
+  if (v > MAX_BET) v = MAX_BET;
+  // 3) 100の倍数に丸め
+  v = Math.floor(v / 100) * 100;
+  return v;
+}
+
+function applyBet(newValue) {
+  currentBet = sanitizeBet(newValue);
+  const input = document.getElementById('betInput');
+  if (input) input.value = String(currentBet);
+}
+
+function changeBet(amount) {
+  if (inProgress) return;
+  applyBet(Math.min(MAX_BET, currentBet + amount));
+}
+
+function toggleBetUI(state) {
+  const betControls = document.getElementById("betControls");
+  const buttons = ["redBtn","blackBtn","greenBtn","numberBtn"].map(id=>document.getElementById(id));
+  if (state === "hide") {
+    betControls.classList.add("hidden");
+    buttons.forEach(b=>b.disabled=true);
+    inProgress = true;
+  } else {
+    betControls.classList.remove("hidden");
+    buttons.forEach(b=>b.disabled=false);
+    inProgress = false;
+  }
+}
+
+async function spin(color){
+  if(inProgress)return;
+  toggleBetUI("hide");
+  const resultDisplay=document.getElementById("resultDisplay");
+  resultDisplay.textContent="Spinning the wheel...";
+  try{
+    const res=await fetch("/api/roulette/spin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({bet_color:color,bet_amount:currentBet})});
+    const result=await res.json();
+    if(!result.ok)throw new Error(result.error);
+    setTimeout(()=>{
+      resultDisplay.textContent=`Landed on ${result.number} (${result.color}) — ${result.message}`;
+      updateBalance(result.new_balance);
+      toggleBetUI("show");
+    },2000);
+  }catch(err){
+    resultDisplay.textContent="Error: "+err.message;
+    toggleBetUI("show");
+  }
+}
+
+async function betOnNumber(){
+  if(inProgress)return;
+  const betNumber=document.getElementById("numberBet").value;
+  if(betNumber===""||betNumber<0||betNumber>36){alert("Enter number 0–36.");return;}
+  toggleBetUI("hide");
+  const resultDisplay=document.getElementById("resultDisplay");
+  resultDisplay.textContent="Spinning the wheel...";
+  try{
+    const res=await fetch("/api/roulette/spin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({bet_number:betNumber,bet_amount:currentBet})});
+    const result=await res.json();
+    if(!result.ok)throw new Error(result.error);
+    setTimeout(()=>{
+      resultDisplay.textContent=`Landed on ${result.number} (${result.color}) — ${result.message}`;
+      updateBalance(result.new_balance);
+      toggleBetUI("show");
+    },2000);
+  }catch(err){
+    resultDisplay.textContent="Error: "+err.message;
+    toggleBetUI("show");
+  }
+}
+
+function updateBalance(newBalance){
+  const el=document.querySelector(".balance");
+  const username=el.textContent.split("|")[0].trim();
+  el.innerHTML=`${username} | Balance: $${newBalance.toFixed(2)} | <a href="/logout" style="color:var(--accent);text-decoration:none;">Logout</a>`;
+}
+
+// 入力イベント: 手入力でも100単位の整数のみ許容
+const betInputEl = document.getElementById('betInput');
+if (betInputEl) {
+  betInputEl.addEventListener('input', (e) => {
+    const before = e.target.value;
+    const sanitizedInt = parseInt(String(before).replace(/\D+/g, ''), 10);
+    e.target.value = isNaN(sanitizedInt) ? '' : String(sanitizedInt);
+  });
+  betInputEl.addEventListener('change', (e) => {
+    applyBet(e.target.value);
+  });
+}
+</script>
+</body>
+</html>

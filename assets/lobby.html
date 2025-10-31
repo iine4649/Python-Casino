@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Casino Lobby - Python Casino</title>
+<style>
+:root {
+  --bg: #0c0f14;
+  --card: #151a22;
+  --accent: #00d4ff;
+  --accent-2: #8a2be2;
+  --text: #e8eef6;
+  --muted: #9aa7b2;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  background: radial-gradient(1200px 800px at 20% 10%, rgba(138,43,226,.25), transparent 60%), var(--bg);
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: rgba(255,255,255,.03);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.logo { font-size: 22px; font-weight: 600; color: var(--accent); }
+
+.nav-actions {
+  display: flex; gap: 16px; align-items: center; font-size: 14px;
+}
+
+.nav-link {
+  color: var(--muted);
+  text-decoration: none;
+}
+.nav-link:hover { color: var(--accent); }
+
+.container {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 80vh; text-align: center;
+}
+
+h1 { font-size: 32px; margin-bottom: 8px; }
+p { color: var(--muted); margin-bottom: 30px; }
+
+.btn {
+  padding: 12px 24px; border: none; border-radius: 10px; font-weight: 600;
+  color: #0a0f14; cursor: pointer; transition: transform .06s ease, box-shadow .2s ease;
+}
+.btn:hover { transform: translateY(-2px); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #4de2ff);
+  box-shadow: 0 8px 20px rgba(0,212,255,.35);
+}
+.btn-secondary {
+  background: linear-gradient(135deg, var(--accent-2), #b07cff);
+  box-shadow: 0 8px 20px rgba(138,43,226,.35);
+}
+.btn-roulette {
+  background: linear-gradient(135deg, #ff4d4d, #ff7b00);
+  box-shadow: 0 8px 20px rgba(255,77,77,.35);
+}
+.btn-deposit {
+  background: linear-gradient(135deg, #24d46d, #00c04b);
+  box-shadow: 0 8px 20px rgba(36,212,109,.35);
+}
+
+.actions { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+
+.footer { margin-top: 60px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="logo">Python Casino</div>
+  <div class="nav-actions">
+    <span class="nav-link">Welcome, {{ username }}</span>
+    <a class="nav-link" href="/dashboard">Dashboard</a>
+    <a class="nav-link" href="/deposit">Deposit</a>
+    <a class="nav-link" href="/logout">Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>Welcome to the Casino Lobby</h1>
+  <p>Choose your game or manage your account below.</p>
+  <div class="actions">
+    <button class="btn btn-primary" onclick="window.location.href='/blackjack'">Play Blackjack</button>
+    <button class="btn btn-roulette" onclick="window.location.href='/roulette'">Play Roulette</button>
+    <button class="btn btn-secondary" onclick="window.location.href='/slotmachine'">Play Slot Machine</button>
+    <button class="btn btn-secondary" onclick="window.location.href='/dashboard'">Go to Dashboard</button>
+    <button class="btn btn-deposit" onclick="window.location.href='/deposit'">Deposit Funds</button>
+  </div>
+</div>
+</body>
+</html>

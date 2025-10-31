@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deposit Funds - Python Casino</title>
+<style>
+:root {
+  --bg: #0c0f14;
+  --card: #151a22;
+  --accent: #00d4ff;
+  --accent-2: #8a2be2;
+  --text: #e8eef6;
+  --muted: #9aa7b2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+  background: radial-gradient(1200px 800px at 20% 10%, rgba(138,43,226,.25), transparent 60%), radial-gradient(1000px 700px at 80% 90%, rgba(0,212,255,.2), transparent 60%), var(--bg);
+  color: var(--text);
+}
+
+.container {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  padding: 24px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent), var(--accent-2));
+}
+
+.title {
+  margin: 0 0 6px 0;
+  font-size: 26px;
+  letter-spacing: .3px;
+}
+
+.subtitle {
+  margin: 0 0 20px 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.03);
+  color: var(--text);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.input::placeholder {
+  color: #7d8b97;
+}
+
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(0,212,255,.12);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 10px;
+  color: #0a0f14;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .06s ease, box-shadow .2s ease, opacity .2s;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #4de2ff);
+  box-shadow: 0 8px 20px rgba(0,212,255,.35);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 10px 24px rgba(0,212,255,.45);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--accent-2), #b07cff);
+  box-shadow: 0 8px 20px rgba(138,43,226,.35);
+}
+
+.btn-secondary:hover {
+  box-shadow: 0 10px 24px rgba(138,43,226,.45);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--accent);
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="logo">
+      <span class="badge"><span class="badge-dot"></span> Python Casino</span>
+    </div>
+    
+    <h1 class="title">Deposit Funds</h1>
+    <p class="subtitle">Add money to your account to continue playing.</p>
+    
+    <form id="deposit-form" class="form">
+      <label for="amount" class="label">Amount</label>
+      <input type="number" id="amount" class="input" name="amount" placeholder="Enter amount to deposit" required min="1" step="0.01">
+      
+      <div class="actions">
+        <button type="submit" class="btn btn-primary">Deposit</button>
+        <button type="button" class="btn btn-secondary" onclick="window.location.href='/dashboard'">Cancel</button>
+      </div>
+    </form>
+    
+    <a href="/lobby" class="back-link">← Back to Lobby</a>
+  </div>
+</div>
+
+<script>
+// Form submission handling
+document.getElementById('deposit-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const amount = document.getElementById('amount').value;
+  
+  if (!amount || parseFloat(amount) <= 0) {
+    alert('Please enter a valid amount.');
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/deposit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ amount: parseFloat(amount) })
+    });
+    
+    const result = await response.json();
+    
+    if (result.ok) {
+      alert('Deposit successful! New balance: $' + result.new_balance.toFixed(2));
+      window.location.href = '/dashboard';
+    } else {
+      alert('Deposit failed: ' + result.error);
+    }
+  } catch (error) {
+    alert('Deposit failed: ' + error.message);
+  }
+});
+</script>
+</body>
+</html>

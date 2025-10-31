@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Python Casino</title>
+<style>
+:root {
+  --bg: #0c0f14;
+  --card: #151a22;
+  --accent: #00d4ff;
+  --accent-2: #8a2be2;
+  --text: #e8eef6;
+  --muted: #9aa7b2;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(1200px 800px at 20% 10%, rgba(138,43,226,.25), transparent 60%), radial-gradient(1000px 700px at 80% 90%, rgba(0,212,255,.2), transparent 60%), var(--bg);
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: rgba(255,255,255,.03);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.main {
+  max-width: 700px;
+  margin: 60px auto;
+  padding: 24px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+h1 {
+  font-size: 26px;
+  margin-bottom: 16px;
+}
+
+.info {
+  margin-bottom: 30px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #0a0f14;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #4de2ff);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--accent-2), #b07cff);
+}
+
+.footer {
+  text-align: center;
+  margin-top: 60px;
+  padding: 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="logo">Casino Dashboard</div>
+  <div>Welcome, {{ username }} | <a href="/logout" style="color: var(--accent); text-decoration: none;">Logout</a></div>
+</nav>
+
+<div class="main">
+  <h1>Your Account Overview</h1>
+  <div class="info">
+    <div class="info-item"><span>Username:</span><span>{{ username }}</span></div>
+    <div class="info-item"><span>Current Balance:</span><span>${{ "%.2f"|format(balance) }}</span></div>
+    <div class="info-item"><span>Total Money Won:</span><span>${{ "%.2f"|format(money_won) }}</span></div>
+    <div class="info-item"><span>Total Money Lost:</span><span>${{ "%.2f"|format(money_lost) }}</span></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="window.location.href='/lobby'">Return to Lobby</button>
+  </div>
+</div>
+
+</body>
+</html>
