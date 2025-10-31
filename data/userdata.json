@@ -103,9 +103,9 @@
     "username": "st",
     "password": "$2b$12$liDARPibwTcP2E6O4QlcSO7lQ7GBt9nXilpwCjflUrWQWRZJP07Ii",
     "nickname": "kind",
-    "balance": 10000.0,
-    "money_won": 600.0,
-    "money_lost": 600.0,
+    "balance": 10400.0,
+    "money_won": 1200.0,
+    "money_lost": 800.0,
     "games_played": 0,
     "history": [
       {
@@ -152,6 +152,30 @@
       },
       {
         "timestamp": "2025-10-31 09:42:26",
+        "game": "slotmachine",
+        "result": "lose",
+        "amount": -100.0
+      },
+      {
+        "timestamp": "2025-10-31 09:56:30",
+        "game": "blackjack",
+        "result": "win",
+        "amount": 100.0
+      },
+      {
+        "timestamp": "2025-10-31 09:56:37",
+        "game": "blackjack",
+        "result": "win",
+        "amount": 500.0
+      },
+      {
+        "timestamp": "2025-10-31 09:59:17",
+        "game": "slotmachine",
+        "result": "lose",
+        "amount": -100.0
+      },
+      {
+        "timestamp": "2025-10-31 09:59:33",
         "game": "slotmachine",
         "result": "lose",
         "amount": -100.0
