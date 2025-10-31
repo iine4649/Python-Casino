@@ -88,40 +88,9 @@ class BlackjackGame:
         else:
             return "tie"
 
-
-
-    def calculate_total(self, cards):
-        """Calculate total value of cards"""
-        return sum(cards)
-    
-    def card_to_string(self, card):
-        """Convert card number to string representation"""
-        return str(card)
-
-    print(f"Your cards: {game.user} (total = {game.calculate_total(game.user)})")
-    print(f"Dealer shows: {game.bot} (total = {game.calculate_total(game.bot)})")
-    while not game.game_over and game.calculate_total(game.user)<21 and game.calculate_total(game.bot)<21:
-        choice = input("Hit or stay? (h/s): ").lower()
-        if choice == 'h':
-            game.hit_player()
-        elif choice == 's':
-            game.player_stayed = True
-            if game.calculate_total(game.bot)>=17:
-                game.game_over = True
-                break
-        if game.calculate_total(game.bot)<17:
-            game.draw_card('bot')
-            time.sleep(1)
-        print(f"Your cards: {game.user} (total = {game.calculate_total(game.user)})")
-        print(f"Dealer's cards: {game.bot} (total = {game.calculate_total(game.bot)})")
-        user_total = game.calculate_total(game.user)
-        bot_total = game.calculate_total(game.bot)
-    print("\nFinal Results:")
-    print(f"Your hand: {game.user} (total = {user_total})")
-    print(f"Dealer's hand: {game.bot} (total = {bot_total})")
-
     def card_to_string(self, card):
         rank, suit = card
         return f"{rank} of {suit}"
+
 
 

@@ -28,8 +28,7 @@ body {
 .logo{font-size:22px;font-weight:600;color:var(--accent);}
 .balance{font-size:16px;color:var(--muted);}
 .container{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;}
-.back-button{position:absolute;top:20px;left:20px;}
-.hidden{display:none!important;}
+
 /* BUTTON SYSTEM */
 .btn {
   padding: 12px 24px; border:none; border-radius:10px;
@@ -62,6 +61,15 @@ body {
   background: rgba(255,255,255,.06); padding: 10px 20px; border-radius: 10px;
 }
 .bet-buttons { display: flex; gap: 10px; }
+.bet-input {
+  font-size: 20px; font-weight: 700; color: var(--accent);
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  padding: 8px 14px;
+  width: 140px;
+  text-align: center;
+}
 .back-button { display: flex; justify-content: left; align-items: left; padding: 20px; }
 .result { font-size: 20px; font-weight: 600; margin-top: 30px; }
 .hidden { display: none !important; }
@@ -83,8 +91,8 @@ body {
   <p>Pick a color or a number (0–36). Spin takes 2 seconds!</p>
 
   <div id="betControls" class="bet-controls">
-    <div>Bet Amount</div>
-    <div class="bet-display" id="betAmount">$100</div>
+    <div>Bet Amount (x100)</div>
+    <input id="betInput" class="bet-input" type="number" min="100" max="1000000000" step="100" inputmode="numeric" pattern="[0-9]*" value="100" />
     <div class="bet-buttons">
       <button class="btn btn-secondary" onclick="changeBet(-100)">-100</button>
       <button class="btn btn-secondary" onclick="changeBet(100)">+100</button>
@@ -109,11 +117,30 @@ body {
 <script>
 let currentBet = 100;
 let inProgress = false;
+const MAX_BET = 1000000000;
+
+function sanitizeBet(value) {
+  // 1) 数値化と整数化
+  let v = parseInt(String(value).replace(/\D+/g, ''), 10);
+  if (isNaN(v)) v = 100;
+  // 2) 下限
+  if (v < 100) v = 100;
+  // 2.5) 上限
+  if (v > MAX_BET) v = MAX_BET;
+  // 3) 100の倍数に丸め
+  v = Math.floor(v / 100) * 100;
+  return v;
+}
+
+function applyBet(newValue) {
+  currentBet = sanitizeBet(newValue);
+  const input = document.getElementById('betInput');
+  if (input) input.value = String(currentBet);
+}
 
 function changeBet(amount) {
-  if (inProgress) return; 
-  currentBet = Math.max(100, currentBet + amount);
-  document.getElementById("betAmount").textContent = `$${currentBet}`;
+  if (inProgress) return;
+  applyBet(Math.min(MAX_BET, currentBet + amount));
 }
 
 function toggleBetUI(state) {
@@ -176,6 +203,19 @@ function updateBalance(newBalance){
   const el=document.querySelector(".balance");
   const username=el.textContent.split("|")[0].trim();
   el.innerHTML=`${username} | Balance: $${newBalance.toFixed(2)} | <a href="/logout" style="color:var(--accent);text-decoration:none;">Logout</a>`;
+}
+
+// 入力イベント: 手入力でも100単位の整数のみ許容
+const betInputEl = document.getElementById('betInput');
+if (betInputEl) {
+  betInputEl.addEventListener('input', (e) => {
+    const before = e.target.value;
+    const sanitizedInt = parseInt(String(before).replace(/\D+/g, ''), 10);
+    e.target.value = isNaN(sanitizedInt) ? '' : String(sanitizedInt);
+  });
+  betInputEl.addEventListener('change', (e) => {
+    applyBet(e.target.value);
+  });
 }
 </script>
 </body>

@@ -92,6 +92,18 @@
       text-align: center;
     }
 
+    .bet-input {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 10px;
+      padding: 8px 14px;
+      width: 140px;
+      text-align: center;
+    }
+
     .bet-buttons {
       display: flex;
       gap: 8px;
@@ -220,8 +232,8 @@
     <div class="game-table">
       <div id="betControls" class="bet-controls">
         <div class="bet-display">
-          <div style="font-size:14px;color:var(--muted);margin-bottom:5px;">Bet Amount</div>
-          <div class="bet-amount" id="betAmount">$100</div>
+          <div style="font-size:14px;color:var(--muted);margin-bottom:5px;">Bet Amount (x100)</div>
+          <input id="betInput" class="bet-input" type="number" min="100" max="1000000000" step="100" inputmode="numeric" pattern="[0-9]*" value="100" />
           <div class="bet-buttons">
             <button class="btn btn-primary btn-small" onclick="changeBet(-100)">-100</button>
             <button class="btn btn-primary btn-small" onclick="changeBet(100)">+100</button>
@@ -263,17 +275,35 @@
     let gameStarted = false;
     let inProgress = false;
 
+    const MAX_BET = 1000000000;
+
+    function sanitizeBet(value) {
+      let v = parseInt(String(value).replace(/\D+/g, ''), 10);
+      if (isNaN(v)) v = 100;
+      if (v < 100) v = 100;
+      if (v > MAX_BET) v = MAX_BET;
+      v = Math.floor(v / 100) * 100;
+      return v;
+    }
+
+    function applyBet(newValue) {
+      currentBet = sanitizeBet(newValue);
+      const input = document.getElementById('betInput');
+      if (input) input.value = String(currentBet);
+    }
+
     function updateBetDisplay() {
-      document.getElementById('betAmount').textContent = '$' + currentBet;
+      const input = document.getElementById('betInput');
+      if (input) input.value = String(currentBet);
     }
 
     function changeBet(amount) {
       if (inProgress) return;
-      const newBet = currentBet + amount;
-      if (newBet >= 100) {
-        currentBet = newBet;
-        updateBetDisplay();
-      }
+      let next = currentBet + amount;
+      if (next < 100) next = 100;
+      if (next > MAX_BET) next = MAX_BET;
+      currentBet = next;
+      updateBetDisplay();
     }
 
     function toggleBetUI(state) {
@@ -348,20 +378,7 @@
             case 'tie': msg = 'Push! Your bet is returned.'; break;
             default: msg = 'You lose $' + r.bet;
           }
-        };
-
-        const result = await response.json();
-
-        if (result.ok) {
-          playerCards = result.player_cards;
-          dealerCards = result.dealer_cards;
-          playerTotal = result.player_total;
-          dealerTotal = result.dealer_total;
-
-          updateCardsDisplay();
-
           updateGameStatus(msg);
-
           endGame();
         } else alert('Error: ' + r.error);
       } catch (e) { alert('Error: ' + e.message); }
@@ -405,6 +422,19 @@
       document.getElementById('standBtn').style.display = 'none';
       document.getElementById('newGameBtn').style.display = 'inline-block';
       toggleBetUI('show');
+    }
+
+    // 入力欄バリデーション
+    const betInputEl = document.getElementById('betInput');
+    if (betInputEl) {
+      betInputEl.addEventListener('input', (e) => {
+        const before = e.target.value;
+        const sanitizedInt = parseInt(String(before).replace(/\D+/g, ''), 10);
+        e.target.value = isNaN(sanitizedInt) ? '' : String(sanitizedInt);
+      });
+      betInputEl.addEventListener('change', (e) => {
+        applyBet(e.target.value);
+      });
     }
 
     updateBetDisplay();

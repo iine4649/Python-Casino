@@ -44,6 +44,7 @@ body {
 .controls { display: flex; flex-direction: column; align-items: center; gap: 16px; }
 .bet-row { display: flex; gap: 12px; align-items: center; }
 .bet-amount { font-size: 22px; font-weight: 700; color: var(--accent); background: rgba(255,255,255,.06); padding: 8px 16px; border-radius: 10px; min-width: 120px; text-align: center; }
+.bet-input { font-size: 20px; font-weight: 700; color: var(--accent); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 8px 14px; width: 140px; text-align: center; }
 .btn { padding: 10px 18px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; color: #0a0f14; transition: transform .06s ease, box-shadow .2s ease; }
 .btn:hover { transform: translateY(-2px); }
 .btn-primary { background: linear-gradient(135deg, var(--accent), #4de2ff); box-shadow: 0 8px 20px rgba(0,212,255,.35); }
@@ -52,6 +53,7 @@ body {
 .payouts { margin-top: 16px; color: var(--muted); font-size: 14px; }
 .payouts table { width: 100%; border-collapse: collapse; margin-top: 8px; }
 .payouts th, .payouts td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,.06); text-align: left; }
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
@@ -74,9 +76,9 @@ body {
     </div>
 
     <div class="controls">
-      <div class="bet-row">
-        <span>Bet</span>
-        <div class="bet-amount" id="betAmount">$100</div>
+      <div class="bet-row" id="betControls">
+        <span>Bet (x100)</span>
+        <input id="betInput" class="bet-input" type="number" min="100" max="1000000000" step="100" inputmode="numeric" pattern="[0-9]*" value="100" />
         <button class="btn btn-secondary" onclick="changeBet(-100)">-100</button>
         <button class="btn btn-secondary" onclick="changeBet(100)">+100</button>
       </div>
@@ -103,12 +105,26 @@ body {
 let currentBet = 100;
 let spinning = false;
 const MIN_BET = 100;
+const MAX_BET = 1000000000;
+
+function sanitizeBet(value) {
+  let v = parseInt(String(value).replace(/\D+/g, ''), 10);
+  if (isNaN(v)) v = MIN_BET;
+  if (v < MIN_BET) v = MIN_BET;
+  if (v > MAX_BET) v = MAX_BET;
+  v = Math.floor(v / 100) * 100;
+  return v;
+}
+
+function applyBet(newValue) {
+  currentBet = sanitizeBet(newValue);
+  const input = document.getElementById('betInput');
+  if (input) input.value = String(currentBet);
+}
 
 function changeBet(amount) {
   if (spinning) return;
-  const next = Math.max(MIN_BET, currentBet + amount);
-  currentBet = next;
-  document.getElementById('betAmount').textContent = `$${currentBet}`;
+  applyBet(currentBet + amount);
 }
 
 function animateSpinStart() {
@@ -133,10 +149,21 @@ function animateSpinStop(timers, finalSymbols) {
   }, delays[i]));
 }
 
+function toggleBetUI(state) {
+  const betControls = document.getElementById('betControls');
+  if (!betControls) return;
+  if (state === 'hide') {
+    betControls.classList.add('hidden');
+  } else {
+    betControls.classList.remove('hidden');
+  }
+}
+
 async function spin() {
   if (spinning) return;
   spinning = true;
   document.getElementById('resultDisplay').textContent = 'Spinning...';
+  toggleBetUI('hide');
   const timers = animateSpinStart();
   document.getElementById('spinBtn').disabled = true;
 
@@ -156,6 +183,7 @@ async function spin() {
         updateBalance(result.new_balance);
         spinning = false;
         document.getElementById('spinBtn').disabled = false;
+        toggleBetUI('show');
       }, 500);
     }, 900);
   } catch (err) {
@@ -163,6 +191,7 @@ async function spin() {
     document.getElementById('resultDisplay').textContent = 'Error: ' + err.message;
     spinning = false;
     document.getElementById('spinBtn').disabled = false;
+    toggleBetUI('show');
   }
 }
 
@@ -170,6 +199,19 @@ function updateBalance(newBalance) {
   const balanceEl = document.querySelector('.balance');
   const username = balanceEl.textContent.split('|')[0].trim();
   balanceEl.innerHTML = `${username} | Balance: $${Number(newBalance).toFixed(2)} | <a href="/logout" style="color: var(--accent); text-decoration: none;">Logout</a>`;
+}
+
+// 入力欄バリデーション
+const betInputEl = document.getElementById('betInput');
+if (betInputEl) {
+  betInputEl.addEventListener('input', (e) => {
+    const before = e.target.value;
+    const sanitizedInt = parseInt(String(before).replace(/\D+/g, ''), 10);
+    e.target.value = isNaN(sanitizedInt) ? '' : String(sanitizedInt);
+  });
+  betInputEl.addEventListener('change', (e) => {
+    applyBet(e.target.value);
+  });
 }
 </script>
 </body>

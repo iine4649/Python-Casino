@@ -152,6 +152,10 @@ def api_blackjack_deal():
 
     data = request.get_json(silent=True) or {}
     bet_amount = float(data.get("bet_amount", 100))
+    if bet_amount <= 0:
+        return jsonify({"ok": False, "error": "Bet must be positive"}), 400
+    if bet_amount > 1_000_000_000:
+        return jsonify({"ok": False, "error": "Bet exceeds allowed limit"}), 400
 
     users = load_users()
     user = users.get(user_id)
@@ -309,159 +313,6 @@ def api_deposit():
         "deposited": amount
     })
 
-# ------------------------------
-# Blackjack
-# ------------------------------
-
-@app.post("/api/blackjack/deal")
-@csrf.exempt
-def api_blackjack_deal():
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"ok": False, "error": "Not logged in"}), 401
-    
-    data = request.get_json(silent=True) or request.form.to_dict()
-    bet_amount = float(data.get("bet_amount", 100))
-    
-    users = load_users()
-    user = users.get(user_id)
-    if not user or not isinstance(user, User):
-        return jsonify({"ok": False, "error": "User not found"}), 404
-    
-    if user.balance < bet_amount:
-        return jsonify({"ok": False, "error": "Insufficient balance"}), 400
-    
-    # Create new game
-    game = BlackjackGame()
-    game.deal_initial_cards()
-    active_games[user_id] = {
-        'game': game,
-        'bet': bet_amount,
-        'initial_balance': user.balance
-    }
-    
-    # Deduct bet from balance
-    user.balance -= bet_amount
-    save_users(users)
-    
-    return jsonify({
-        "ok": True,
-        "player_cards": [game.card_to_string(card) for card in game.user],
-        "dealer_cards": [game.card_to_string(card) if i > 0 else "?" for i, card in enumerate(game.bot)],
-        "player_total": game.get_player_total(),
-        "dealer_total": "?" if len(game.bot) > 0 else 0,
-        "game_over": game.game_over,
-        "new_balance": user.balance
-    })
-
-
-@app.post("/api/blackjack/hit")
-@csrf.exempt
-def api_blackjack_hit():
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"ok": False, "error": "Not logged in"}), 401
-    
-    if user_id not in active_games:
-        return jsonify({"ok": False, "error": "No active game"}), 400
-    
-    game_data = active_games[user_id]
-    game = game_data['game']
-    
-    result = game.hit_player()
-    
-    return jsonify({
-        "ok": True,
-        "player_cards": [game.card_to_string(card) for card in game.user],
-        "dealer_cards": [game.card_to_string(card) if i > 0 else "?" for i, card in enumerate(game.bot)],
-        "player_total": game.get_player_total(),
-        "dealer_total": "?" if not game.game_over else game.get_dealer_total(),
-        "game_over": game.game_over,
-        "result": "bust" if game.game_over else "hit",
-        "game_result": game.get_game_result() if game.game_over else "playing"
-    })
-
-
-@app.post("/api/blackjack/stand")
-@csrf.exempt
-def api_blackjack_stand():
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"ok": False, "error": "Not logged in"}), 401
-    
-    if user_id not in active_games:
-        return jsonify({"ok": False, "error": "No active game"}), 400
-    
-    game_data = active_games[user_id]
-    game = game_data['game']
-    bet_amount = game_data['bet']
-    
-    game.player_stay()
-    result = game.get_game_result()
-    
-    # Update user balance based on result
-    users = load_users()
-    user = users.get(user_id)
-    if user and isinstance(user, User):
-        if result == "win":
-            user.balance += bet_amount * 2
-            user.money_won += bet_amount
-        elif result == "tie":
-            user.balance += bet_amount
-        else:
-            user.money_lost += bet_amount
-        
-        user.games_played += 1
-        save_users(users)
-    
-    # Clean up game
-    del active_games[user_id]
-    
-    return jsonify({
-        "ok": True,
-        "player_cards": [game.card_to_string(card) for card in game.user],
-        "dealer_cards": [game.card_to_string(card) for card in game.bot],
-        "player_total": game.get_player_total(),
-        "dealer_total": game.get_dealer_total(),
-        "game_over": True,
-        "game_result": result,
-        "new_balance": user.balance if user and isinstance(user, User) else 0,
-        "bet": bet_amount
-    })
-
-
-@app.post("/api/deposit")
-@csrf.exempt
-def api_deposit():
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"ok": False, "error": "Not logged in"}), 401
-    
-    data = request.get_json(silent=True) or request.form.to_dict()
-    amount = data.get("amount")
-    
-    try:
-        amount = float(amount)
-        if amount <= 0:
-            return jsonify({"ok": False, "error": "Amount must be positive"}), 400
-    except (ValueError, TypeError):
-        return jsonify({"ok": False, "error": "Invalid amount"}), 400
-    
-    users = load_users()
-    user = users.get(user_id)
-    
-    if not user or not isinstance(user, User):
-        return jsonify({"ok": False, "error": "User not found"}), 404
-    
-    # Add deposit amount to balance
-    user.deposit(amount)
-    save_users(users)
-    
-    return jsonify({
-        "ok": True,
-        "new_balance": user.balance,
-        "deposited": amount
-    })
 
 
 # ------------------------------
@@ -490,6 +341,10 @@ def roulette_spin():
     bet_color = data.get('bet_color')
     bet_number = data.get('bet_number')
     bet_amount = int(data.get('bet_amount', 100))
+    if bet_amount <= 0:
+        return jsonify({'ok': False, 'error': 'Bet must be positive'}), 400
+    if bet_amount > 1_000_000_000:
+        return jsonify({'ok': False, 'error': 'Bet exceeds allowed limit'}), 400
 
     users = load_users()
     user = users.get(user_id)
@@ -566,6 +421,8 @@ def api_slot_spin():
 
     if bet_amount <= 0:
         return jsonify({"ok": False, "error": "Bet must be positive"}), 400
+    if bet_amount > 1_000_000_000:
+        return jsonify({"ok": False, "error": "Bet exceeds allowed limit"}), 400
 
     if user.balance < bet_amount:
         return jsonify({"ok": False, "error": "Insufficient balance"}), 400
