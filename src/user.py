@@ -49,7 +49,7 @@ def update_balance(self, games, result, amount):
     self.games_played += 1
 
     self.history.append({
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), #idk if its necessary to enter allat
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "game": games,
         "result": result,
         "amount": amount,
