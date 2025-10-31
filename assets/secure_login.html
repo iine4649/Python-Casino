@@ -182,14 +182,13 @@ body {
     </div>
     <h1 class="title" id="title-text">Sign in</h1>
     <p class="subtitle" id="subtitle-text">Log in to your account to start playing.</p>
-    <form id="signin-form" class="form" action="#" method="post">
+    <form id="signin-form" class="form" action="/sign-in" method="post">
       <label for="user-id" class="label" id="label-id">ID</label>
       <input type="text" id="user-id" class="input" name="user_id" placeholder="Enter your ID" required>
 
       <label for="password" class="label" id="label-password">Password</label>
       <input type="password" id="password" class="input" name="password" placeholder="Enter your password" required>
 
-      <!-- Remember Me checkbox -->
       <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);">
         <input type="checkbox" id="remember-me" style="width:16px;height:16px;"> Remember me
       </label>
@@ -199,6 +198,7 @@ body {
         <button type="button" class="btn btn-secondary" id="btn-signup" onclick="window.location.href='/sign-up'">Sign Up</button>
       </div>
     </form>
+
     <div class="footer"><span id="footer-prefix">Don’t have an account?</span> 
       <a class="link" id="footer-link" href="/sign-up">Sign Up</a>
     </div>

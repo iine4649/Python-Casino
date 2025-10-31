@@ -63,89 +63,9 @@
     "money_lost": 0,
     "games_played": 0
   },
-  "111": {
-    "username": "111",
-    "password": "$2b$12$3AMKeZi21aFAG3.hJC4Y3uUZReMyquxsxTWorb1EwF9fzQh/1hJ6q",
-    "balance": 10000,
-    "money_won": 0,
-    "money_lost": 0,
-    "games_played": 0
-  },
-  "1": {
-    "username": "1",
-    "password": "$2b$12$lxuPhgVARDrIAIKz4XrSgO0x878P3CzXHSlZBRuL56wXOondZY3bS",
-    "balance": 10000,
-    "money_won": 0,
-    "money_lost": 0,
-    "games_played": 0
-  },
-  "nn": {
-    "username": "nn",
-    "password": "$2b$12$3KemITBqxXQ0KWFVJSpvo.G2mJCHTOXEFkNXTTPl1vz6r15czrXz6",
-    "balance": 10000,
-    "money_won": 0,
-    "money_lost": 0,
-    "games_played": 0
-  },
-  "n": {
-    "username": "n",
-    "password": "$2b$12$Qe3Tj7FLEN9onopAZscXa.x2fc7ue6GZ5WA1STFoRJMdm3nGkBtZK",
-    "balance": 9200.0,
-    "money_won": 400.0,
-    "money_lost": 1200.0,
-    "games_played": 0
-  },
-  "9": {
-    "username": "9",
-    "password": "$2b$12$y55xvjIHzPykHT8i3VE6aup7YprsAC8bJ79hTsJCi2yMGRkiJcEWC",
-    "balance": 10000,
-    "money_won": 0,
-    "money_lost": 0,
-    "games_played": 0
-  },
-  "11": {
-    "username": "11",
-    "password": "$2b$12$M14p5NeVovNE5PTnF6mH3./BOnUF2NUFSNX6cBod8HEbTVQ.gjRee",
-    "balance": 10000,
-    "money_won": 0,
-    "money_lost": 0,
-    "games_played": 0
-  },
-  "1111": {
-    "username": "1111",
-    "password": "$2b$12$dRyMBuXgwqdc3x2oabGxHuRq3vaFyaTbx4f8NIqLXPlOX0xfKkT/6",
-    "balance": 10000,
-    "money_won": 0,
-    "money_lost": 0,
-    "games_played": 0
-  },
-  "2222": {
-    "username": "2222",
-    "password": "$2b$12$0CTbE6vblhS4ZiegQkJNtef56S/yQkLYiYkT/kvPX1E8o3uj98.Gq",
-    "balance": 10000,
-    "money_won": 0,
-    "money_lost": 0,
-    "games_played": 0
-  },
-  "sw": {
-    "username": "sw",
-    "password": "$2b$12$9xuSzBGdzdrgGvCxGv9KjeV68gBKmM5Ebj2kaEB/iflOzDcFVtea2",
-    "balance": 10000,
-    "money_won": 0,
-    "money_lost": 0,
-    "games_played": 0
-  },
-  "3221": {
-    "username": "3221",
-    "password": "$2b$12$HMJ/Yh5AObMZe4Zuzwhhi.k8XdY1Y/iByqpo42BpK1u1/6/pIXZ1y",
-    "balance": 10000,
-    "money_won": 0,
-    "money_lost": 0,
-    "games_played": 0
-  },
-  "133": {
-    "username": "133",
-    "password": "$2b$12$8TbA1yIfdgdv8n5tqVx0f.YrHNndjs.DRtVURc/DMzHY8jwA.GJei",
+  "qilok1": {
+    "username": "qilok1",
+    "password": "$2b$12$OA87qKnbIlOBHwwQaUdHT.gSIQdbcu3hcD70HhpvS4BfSBLmdKS/u",
     "balance": 10000,
     "money_won": 0,
     "money_lost": 0,
