@@ -83,9 +83,9 @@
     "username": "qilok1",
     "password": "$2b$12$OA87qKnbIlOBHwwQaUdHT.gSIQdbcu3hcD70HhpvS4BfSBLmdKS/u",
     "nickname": "qilok1",
-    "balance": 10100.0,
+    "balance": 3100.0,
     "money_won": 0,
-    "money_lost": 100.0,
+    "money_lost": 600.0,
     "games_played": 0,
     "history": [
       {
@@ -99,6 +99,42 @@
         "game": "slotmachine",
         "result": "lose",
         "amount": -100.0
+      },
+      {
+        "timestamp": "2025-10-31 22:44:00",
+        "game": "roulette",
+        "result": "lose",
+        "amount": -100
+      },
+      {
+        "timestamp": "2025-10-31 22:44:08",
+        "game": "slotmachine",
+        "result": "lose",
+        "amount": -100.0
+      },
+      {
+        "timestamp": "2025-10-31 22:44:13",
+        "game": "slotmachine",
+        "result": "lose",
+        "amount": -200.0
+      },
+      {
+        "timestamp": "2025-10-31 22:44:15",
+        "game": "slotmachine",
+        "result": "lose",
+        "amount": -200.0
+      },
+      {
+        "timestamp": "2025-10-31 22:44:29",
+        "game": "roulette",
+        "result": "win",
+        "amount": 100
+      },
+      {
+        "timestamp": "2025-10-31 22:44:43",
+        "game": "roulette",
+        "result": "lose",
+        "amount": -6600
       }
     ]
   },
@@ -194,5 +230,15 @@
         "amount": -100.0
       }
     ]
+  },
+  "12345": {
+    "username": "12345",
+    "password": "$2b$12$cxXpntEsE7tw9rgrFfS92.zDhxZX5jVxBluhG6unguNSOgfgrq5lW",
+    "nickname": "123456",
+    "balance": 10000,
+    "money_won": 0,
+    "money_lost": 0,
+    "games_played": 0,
+    "history": []
   }
 }
