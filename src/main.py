@@ -59,7 +59,8 @@ def load_users():
                     balance=user_data.get('balance', 500),
                     money_won=user_data.get('money_won', 0),
                     money_lost=user_data.get('money_lost', 0),
-                    games_played=user_data.get('games_played', 0)
+                    games_played=user_data.get('games_played', 0),
+                    nickname=user_data.get('nickname', "")
                 )
         return users
     except json.JSONDecodeError:
@@ -115,6 +116,7 @@ def lobby():
     users = load_users()
     user = users.get(user_id)
     balance = user.balance if user else 1000
+    display_name = user.nickname if user and getattr(user, "nickname", "") else user_id
     return render_template("lobby.html", username=user_id, balance=balance)
 
 @app.route("/dashboard")
@@ -458,6 +460,7 @@ def api_sign_up():
     data = request.get_json(silent=True) or request.form.to_dict()
     print("Parsed data:", data)
     user_id = (data.get("user_id") or "").strip().lower()
+    nickname = (data.get("nickname") or "").strip()
     password = data.get("password") or ""
     password_confirm = data.get("password_confirm") or data.get("password2") or ""
     if not user_id or not password:

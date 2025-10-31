@@ -78,5 +78,21 @@
     "money_won": 300.0,
     "money_lost": 1001700.0,
     "games_played": 0
+  },
+  "123": {
+    "username": "123",
+    "password": "$2b$12$tbM/.uslf8QxsALVh/CSQOA6q6yoJJOAgnRAHGsbo6O92vDxLBnUy",
+    "balance": 10900.0,
+    "money_won": 0,
+    "money_lost": 100.0,
+    "games_played": 0
+  },
+  "sigmaboy": {
+    "username": "sigmaboy",
+    "password": "$2b$12$D9VVF/MDJiLQ0dZM/hBimu6lS.K/x6zFvcsCsxz2xhjBCNiQrGJwa",
+    "balance": 9400.0,
+    "money_won": 0,
+    "money_lost": 600.0,
+    "games_played": 0
   }
 }

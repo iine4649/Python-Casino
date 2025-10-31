@@ -12,6 +12,8 @@
   --accent-2: #8a2be2;
   --text: #e8eef6;
   --muted: #9aa7b2;
+  --gold: #f4c542;
+  --gold-dark: #c79900;
 }
 
 body {
@@ -35,7 +37,10 @@ body {
 .logo { font-size: 22px; font-weight: 600; color: var(--accent); }
 
 .nav-actions {
-  display: flex; gap: 16px; align-items: center; font-size: 14px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 14px;
 }
 
 .nav-link {
@@ -45,16 +50,25 @@ body {
 .nav-link:hover { color: var(--accent); }
 
 .container {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  min-height: 80vh; text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
 }
 
 h1 { font-size: 32px; margin-bottom: 8px; }
 p { color: var(--muted); margin-bottom: 30px; }
 
 .btn {
-  padding: 12px 24px; border: none; border-radius: 10px; font-weight: 600;
-  color: #0a0f14; cursor: pointer; transition: transform .06s ease, box-shadow .2s ease;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #0a0f14;
+  cursor: pointer;
+  transition: transform .06s ease, box-shadow .2s ease;
 }
 .btn:hover { transform: translateY(-2px); }
 
@@ -74,17 +88,31 @@ p { color: var(--muted); margin-bottom: 30px; }
   background: linear-gradient(135deg, #24d46d, #00c04b);
   box-shadow: 0 8px 20px rgba(36,212,109,.35);
 }
+.btn-slot {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  box-shadow: 0 8px 20px rgba(244,197,66,.35);
+  color: #0a0f14;
+}
 
-.actions { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
 
-.footer { margin-top: 60px; color: var(--muted); font-size: 13px; }
+.footer {
+  margin-top: 60px;
+  color: var(--muted);
+  font-size: 13px;
+}
 </style>
 </head>
 <body>
 <nav class="navbar">
   <div class="logo">Python Casino</div>
   <div class="nav-actions">
-    <span class="nav-link">Welcome, {{ username }}</span>
+    <span class="nav-link">Welcome, <strong>{{ username }}</strong></span>
     <a class="nav-link" href="/dashboard">Dashboard</a>
     <a class="nav-link" href="/deposit">Deposit</a>
     <a class="nav-link" href="/logout">Logout</a>
@@ -92,12 +120,13 @@ p { color: var(--muted); margin-bottom: 30px; }
 </nav>
 
 <div class="container">
-  <h1>Welcome to the Casino Lobby</h1>
+  <h1>Welcome to the Casino Lobby, {{ username }}!</h1>
+  <p>Your current balance: <strong>${{ balance }}</strong></p>
   <p>Choose your game or manage your account below.</p>
   <div class="actions">
     <button class="btn btn-primary" onclick="window.location.href='/blackjack'">Play Blackjack</button>
     <button class="btn btn-roulette" onclick="window.location.href='/roulette'">Play Roulette</button>
-    <button class="btn btn-secondary" onclick="window.location.href='/slotmachine'">Play Slot Machine</button>
+    <button class="btn btn-slot" onclick="window.location.href='/slotmachine'">Play Slot Machine</button>
     <button class="btn btn-secondary" onclick="window.location.href='/dashboard'">Go to Dashboard</button>
     <button class="btn btn-deposit" onclick="window.location.href='/deposit'">Deposit Funds</button>
   </div>

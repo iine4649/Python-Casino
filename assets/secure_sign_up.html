@@ -218,6 +218,8 @@ body {
 <form id="signup-form" class="form" action="#" method="post">
 <label for="user-id" class="label" id="label-id">ID</label>
 <input type="text" id="user-id" class="input" name="user_id" placeholder="Choose your ID" required>
+<label for="nickname" class="label">Nickname </label>
+<input type="text" id="nickname" class="input" name="nickname" placeholder="Enter your nickname">
 <label for="password" class="label" id="label-password">Password</label>
 <input type="password" id="password" class="input" name="password" placeholder="Create a strong password" required>
 <label for="password2" class="label" id="label-password2">Confirm Password</label>
@@ -289,6 +291,7 @@ document.getElementById('signup-form').addEventListener('submit', async function
   const data = {
     user_id: formData.get('user_id'),
     password: formData.get('password'),
+    nickname: formData.get('nickname'), 
     password_confirm: formData.get('password_confirm')
   };
   
