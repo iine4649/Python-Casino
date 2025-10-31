@@ -83,11 +83,24 @@
     "username": "qilok1",
     "password": "$2b$12$OA87qKnbIlOBHwwQaUdHT.gSIQdbcu3hcD70HhpvS4BfSBLmdKS/u",
     "nickname": "qilok1",
-    "balance": 10000,
+    "balance": 10100.0,
     "money_won": 0,
-    "money_lost": 0,
+    "money_lost": 100.0,
     "games_played": 0,
-    "history": []
+    "history": [
+      {
+        "timestamp": "2025-10-31 22:41:36",
+        "game": "roulette",
+        "result": "win",
+        "amount": 100
+      },
+      {
+        "timestamp": "2025-10-31 22:41:42",
+        "game": "slotmachine",
+        "result": "lose",
+        "amount": -100.0
+      }
+    ]
   },
   "qw": {
     "username": "qw",
