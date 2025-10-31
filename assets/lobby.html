@@ -73,15 +73,15 @@ p { color: var(--muted); margin-bottom: 30px; }
 .btn:hover { transform: translateY(-2px); }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), #4de2ff);
+  background: linear-gradient(135deg, var(--accent-2), #f4ff7c);
   box-shadow: 0 8px 20px rgba(0,212,255,.35);
 }
 .btn-secondary {
-  background: linear-gradient(135deg, var(--accent-2), #b07cff);
+  background: linear-gradient(135deg, var(--accent), #4de2ff);
   box-shadow: 0 8px 20px rgba(138,43,226,.35);
 }
 .btn-roulette {
-  background: linear-gradient(135deg, #ff4d4d, #ff7b00);
+  background: linear-gradient(135deg, var(--accent-2), #f4ff7c);
   box-shadow: 0 8px 20px rgba(255,77,77,.35);
 }
 .btn-deposit {
@@ -126,7 +126,7 @@ p { color: var(--muted); margin-bottom: 30px; }
   <div class="actions">
     <button class="btn btn-primary" onclick="window.location.href='/blackjack'">Play Blackjack</button>
     <button class="btn btn-roulette" onclick="window.location.href='/roulette'">Play Roulette</button>
-    <button class="btn btn-slot" onclick="window.location.href='/slotmachine'">Play Slot Machine</button>
+    <button class="btn btn-primary" onclick="window.location.href='/slotmachine'">Play Slot Machine</button>
     <button class="btn btn-secondary" onclick="window.location.href='/dashboard'">Go to Dashboard</button>
     <button class="btn btn-deposit" onclick="window.location.href='/deposit'">Deposit Funds</button>
   </div>
